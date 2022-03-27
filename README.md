@@ -9,3 +9,26 @@ The help mitigate infrastructure attacks, such as shutdown of cloud-hosted servi
 The Blockcore DNS is a type of Dynamic DNS ([DDNS](https://en.wikipedia.org/wiki/Dynamic_DNS)) that allows a semi-trust or no-trust setups where anyone that runs Blockcore software can become part of the ecosystem.
 
 Anyone can run the Blockcore DNS software for their own domain, and can allow anyone or approved-list of hosters to be part of their official DNS.
+
+## API
+
+The running instance of Blockcore DNS will have a REST API that allows running instances of the Blockcore software (e.g. Blockcore Indexer, Blockcore Vault) to announce their current public IP address where consumers can access the public APIs being hosted by individual third parties.
+
+## How it works
+
+- Actor A will buy a domain, e.g. "myservers.com".
+- Actor A runs the Blockcore DNS software, preferably using Docker.
+- The Blockcore DNS will be configured by Actor A and setup with an DID (Decentralized identfier).
+- The Blockcore DNS will automatically generate and configure an TLS certificate for secure endpoint communication. It is not a requirement to use certificates, as all messages will be signed.
+- Actor A configure their DNS instance to either be fully public (will be open for various attacks) or pre-approved list of DIDs.
+
+Next step is for Actor B to run, e.g. Blockcore Indexer or Blockcore Vault.
+
+- Actor B will install and run the Blockcore software.
+- Actor B will be able to configure which domains they want their hosted software to be a member of, e.g. "myservers.com".
+
+Final step is consumers (users, etc.) that need to consume blockchain and other data.
+
+- Actor C will install the Blockcore Extension, which is an lightweight wallet that depends on hosted nodes.
+- Actor C will either choose "Default", from a list of pre-approved domains, or custom domain input for where they want to connect.
+- Actor C software will perform a normal DNS lookup and retrieve the IP of all running instances, and pick one IP to communicate with.
