@@ -32,3 +32,11 @@ Final step is consumers (users, etc.) that need to consume blockchain and other 
 - Actor C will install the Blockcore Extension, which is an lightweight wallet that depends on hosted nodes.
 - Actor C will either choose "Default", from a list of pre-approved domains, or custom domain input for where they want to connect.
 - Actor C software will perform a normal DNS lookup and retrieve the IP of all running instances, and pick one IP to communicate with.
+
+## Existing DNS features
+
+The Blockcore node supports DNS-mode, where it will return IP-addresses of public nodes that are connected to the node. This code is based upon this DNS library:
+
+https://github.com/kapetan/dns
+
+We should consider using the same library for Blockcore DNS. It provided DNS logic for client and server logic.
