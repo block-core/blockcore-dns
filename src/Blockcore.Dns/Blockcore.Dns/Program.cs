@@ -1,17 +1,40 @@
-﻿// Proxy to google's DNS
-//
+﻿using Microsoft.Extensions.DependencyInjection;
 
+namespace Blockcore.Dns
+{
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Hosting;
 
-using Blockcore.Dns;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-var host =  Host.CreateDefaultBuilder(args)
-    .UseConsoleLifetime()
-    .ConfigureServices((hostContext, services) =>
+    /// <summary>
+    /// The application program.
+    /// </summary>
+    public class Program
     {
-        services.AddHostedService<ServerBackgroundService>();
-    })
-    .Build();
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-await host.RunAsync();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+               .ConfigureServices((hostContext, services) =>
+               {
+                   services.Configure<HostOptions>(option =>
+                   {
+                   });
+               })
+              .ConfigureAppConfiguration(config =>
+              {
+                 // config.AddBlockcore("Blockore Indexer", args);
+              })
+              .ConfigureWebHostDefaults(webBuilder =>
+              {
+                  webBuilder.ConfigureKestrel(serverOptions =>
+                  {
+                      serverOptions.AddServerHeader = false;
+                  });
+
+                  webBuilder.UseStartup<Startup>();
+              });
+    }
+}

@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/src/Blockcore.Dns/Blockcore.Dns/obj
+/src/Blockcore.Dns/.vs/Blockcore.Dns/DesignTimeBuild
+/src/Blockcore.Dns/.vs/Blockcore.Dns/v17
+/src/Blockcore.Dns/Blockcore.Dns/bin/Debug/net6.0
+/src/Blockcore.Dns/.vs/Blockcore.Dns
