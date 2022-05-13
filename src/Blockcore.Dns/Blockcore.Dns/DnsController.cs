@@ -7,8 +7,11 @@ namespace Blockcore.Dns
     [Route("api/dns")]
     public class DnsController : Controller
     {
-        public DnsController(DnsMasterFile masterFile)
+        private readonly ILogger<DnsController> logger;
+
+        public DnsController(ILogger<DnsController> logger, DnsMasterFile masterFile)
         {
+            this.logger = logger;
             MasterFile = masterFile;
         }
 
@@ -18,6 +21,8 @@ namespace Blockcore.Dns
         public IActionResult AddEntry([FromBody] DnsRequest data)
         {
             MasterFile.AddIPAddressResourceRecord(data.Domain, data.IpAddress);
+            
+            logger.LogInformation($"Added entry {data.Domain} - {data.IpAddress}");
 
             return new OkResult();
         }

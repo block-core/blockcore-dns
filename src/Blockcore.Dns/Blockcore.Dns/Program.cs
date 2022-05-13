@@ -2,6 +2,7 @@
 
 namespace Blockcore.Dns
 {
+    using DNS.Client;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
 
@@ -19,13 +20,10 @@ namespace Blockcore.Dns
             Host.CreateDefaultBuilder(args)
                .ConfigureServices((hostContext, services) =>
                {
-                   services.Configure<HostOptions>(option =>
-                   {
-                   });
+                   services.Configure<HostOptions>(option => { });
                })
               .ConfigureAppConfiguration(config =>
               {
-                 // config.AddBlockcore("Blockore Indexer", args);
               })
               .ConfigureWebHostDefaults(webBuilder =>
               {

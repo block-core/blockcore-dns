@@ -17,7 +17,6 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-
         services.Configure<DnsSettings>(Configuration.GetSection("Dns"));
 
         services.AddResponseCompression();
@@ -47,40 +46,26 @@ public class Startup
 
         services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
 
-        services.AddControllers(options =>
-        {
-        });
+        services.AddControllers(options => {});
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.UseExceptionHandler("/error");
-
-        // Enable Cors
         app.UseCors("IndexerPolicy");
-
         app.UseResponseCompression();
-
-        //app.UseMvc();
-
         app.UseDefaultFiles();
-
         app.UseStaticFiles();
-
         app.UseRouting();
-
         app.UseSwagger(c =>
         {
             c.RouteTemplate = "docs/{documentName}/openapi.json";
-
         });
-
         app.UseSwaggerUI(c =>
         {
            c.RoutePrefix = "docs";
            c.SwaggerEndpoint("/docs/Dns/openapi.json", "Blockcore Dns API");
         });
-
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
