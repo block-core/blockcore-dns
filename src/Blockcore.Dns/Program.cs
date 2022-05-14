@@ -13,11 +13,33 @@ namespace Blockcore.Dns
     {
         public static void Main(string[] args)
         {
+            if (args.Contains("--did"))
+            {
+
+                // generating a DID key
+                string keyHex = "TBD";
+                
+                Console.WriteLine($"Add this DID key to config {keyHex} ");
+                return;
+            }
+
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+                // Run dns in agent mode
+            if (args.Contains("--agent"))
+            {
+                return Host.CreateDefaultBuilder(args)
+                   .ConfigureServices((hostContext, services) =>
+                   {
+                       services.Configure<AgentSettings>(hostContext.Configuration.GetSection("DnsAgent"));
+                       services.AddHostedService<AgentBackgroundService>();
+                   });
+            }
+
+            return Host.CreateDefaultBuilder(args)
                .ConfigureServices((hostContext, services) =>
                {
                    services.Configure<HostOptions>(option => { });
@@ -34,5 +56,6 @@ namespace Blockcore.Dns
 
                   webBuilder.UseStartup<Startup>();
               });
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Blockcore.Dns
 
         public DnsMasterFile MasterFile { get; }
 
-        [HttpPost("send")]
+        [HttpPost("addEntry")]
         public IActionResult AddEntry([FromBody] DnsRequest data)
         {
             MasterFile.AddIPAddressResourceRecord(data.Domain, data.IpAddress);
