@@ -28,19 +28,42 @@ public class AgentBackgroundService : IHostedService, IDisposable
 
     private void DoWork(object? state)
     {
+        IPAddress externalIp = null;
         try
         {
             // todo: add an endpoint on the dns api to return the callers ip
             // todo: change this to call an end point on the host (or one of the hosts if several are configured)
-            string externalIpString = httpClient.GetStringAsync("http://icanhazip.com").Result.Replace("\\r\\n", "").Replace("\\n", "").Trim();
-            var externalIp = IPAddress.Parse(externalIpString);
+            string externalIpString = httpClient.GetStringAsync($"http://{AgentSettings.Hosts.First().Host}/api/dns/ipaddress").Result.Replace("\\r\\n", "").Replace("\\n", "").Trim();
+            externalIp = IPAddress.Parse(externalIpString);
 
             logger.LogInformation($"Public ip = {externalIp}.");
         }
         catch (Exception ex)
         {
-            logger.LogError($"Fail to fetch external ip {ex}");
+            logger.LogError($"Fail to fetch external ip error= {ex}");
             return;
+        }
+
+
+        foreach( var host in AgentSettings.Hosts)
+        {
+            try
+            {
+                DnsRequest request = new DnsRequest
+                {
+                    Domain = host.Domain,
+                    IpAddress = externalIp.ToString()
+                };
+
+                var result = httpClient.PostAsJsonAsync($"http://{host.Host}/api/dns/addEntry", request).Result;
+
+                logger.LogInformation($"Updated host {host.Host} request {System.Text.Json.JsonSerializer.Serialize(request)}");
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Fail to post to server {host.Host} error= {ex}");
+            }
         }
 
         var count = Interlocked.Increment(ref executionCount);

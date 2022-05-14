@@ -20,9 +20,14 @@ namespace Blockcore.Dns
         [HttpPost("addEntry")]
         public IActionResult AddEntry([FromBody] DnsRequest data)
         {
-            MasterFile.AddIPAddressResourceRecord(data.Domain, data.IpAddress);
-            
-            logger.LogInformation($"Added entry {data.Domain} - {data.IpAddress}");
+            // should we put a lock here?
+
+            if (!MasterFile.CheckDomainExists(data.Domain, data.IpAddress))
+            {
+                MasterFile.AddIPAddressResourceRecord(data.Domain, data.IpAddress);
+
+                logger.LogInformation($"Added entry {data.Domain} - {data.IpAddress}");
+            }
 
             return new OkResult();
         }
