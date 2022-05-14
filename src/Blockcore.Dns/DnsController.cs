@@ -32,5 +32,11 @@ namespace Blockcore.Dns
         {
             return new OkObjectResult(MasterFile.DnsEntries.Select(s => s.ToString()));
         }
+
+        [HttpGet("ipaddress")]
+        public IActionResult IpAddress()
+        {
+            return new OkObjectResult(Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? String.Empty);
+        }
     }
 }
