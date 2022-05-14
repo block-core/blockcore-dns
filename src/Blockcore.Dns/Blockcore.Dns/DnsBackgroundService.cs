@@ -46,7 +46,11 @@ public class DnsBackgroundService : BackgroundService
         // Start the server (by default it listens on port 53)
         DnsServer.Listening += (sender, e) => logger.LogInformation($"Listening on port {DnsSettings.ListenPort}");
 
-        stoppingToken.Register(DnsServer.Dispose);
+        stoppingToken.Register(() =>
+        {
+            logger.LogInformation("Dns disposing");
+            DnsServer.Dispose();
+        });
 
         return DnsServer.Listen(DnsSettings.ListenPort);
     }
