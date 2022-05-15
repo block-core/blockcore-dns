@@ -4,7 +4,6 @@ using System.Net;
 
 public class AgentBackgroundService : IHostedService, IDisposable
 {
-    private int executionCount = 0;
     private readonly ILogger<AgentBackgroundService> logger;
     private Timer timer = null!;
     private HttpClient httpClient;
@@ -52,7 +51,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
                 DnsRequest request = new DnsRequest
                 {
                     Domain = host.Domain,
-                    IpAddress = externalIp.ToString()
+                    IpAddress = externalIp.IsIPv4MappedToIPv6 ? externalIp.MapToIPv4().ToString() : externalIp.ToString()
                 };
 
                 var result = httpClient.PostAsJsonAsync($"http://{host.Host}/api/dns/addEntry", request).Result;
@@ -65,10 +64,6 @@ public class AgentBackgroundService : IHostedService, IDisposable
                 logger.LogError($"Fail to post to server {host.Host} error= {ex}");
             }
         }
-
-        var count = Interlocked.Increment(ref executionCount);
-
-        logger.LogInformation("Timed Hosted Service is working. Count: {Count}", count);
     }
 
     public Task StopAsync(CancellationToken stoppingToken)
