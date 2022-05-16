@@ -9,20 +9,20 @@ namespace Blockcore.Dns
     {
         private readonly ILogger<DnsController> logger;
 
-        public DnsController(ILogger<DnsController> logger, DnsMasterFile masterFile)
+        public DnsController(ILogger<DnsController> logger, DnsMasterFile dnsMasterFile)
         {
             this.logger = logger;
-            MasterFile = masterFile;
+            DnsMasterFile = dnsMasterFile;
         }
 
-        public DnsMasterFile MasterFile { get; }
+        public DnsMasterFile DnsMasterFile { get; }
 
         [HttpPost("addEntry")]
-        public IActionResult AddEntry([FromBody] DnsRequest data)
+        public IActionResult AddEntry([FromBody] DnsRequest dnsRequest)
         {
-            if (MasterFile.TryAddIPAddressResourceRecord(data.Domain, data.IpAddress))
+            if (DnsMasterFile.TryAddIPAddressResourceRecord(dnsRequest))
             {
-                logger.LogInformation($"Added entry {data.Domain} - {data.IpAddress}");
+                logger.LogInformation($"Added entry {dnsRequest.Domain} - {dnsRequest.IpAddress} - {dnsRequest.Service} - {dnsRequest.Symbol}");
             }
 
             return new OkResult();
@@ -31,7 +31,13 @@ namespace Blockcore.Dns
         [HttpGet("entries")]
         public IActionResult Entries()
         {
-            return new OkObjectResult(MasterFile.DnsEntries.Select(s => s.ToString()));
+            return new OkObjectResult(DnsMasterFile.Entries.Select(s => s.ToString()));
+        }
+
+        [HttpGet("services")]
+        public IActionResult ServiceEntries()
+        {
+            return new OkObjectResult(DnsMasterFile.DnsEntries.Select(s => s.ToString()));
         }
 
         [HttpGet("ipaddress")]

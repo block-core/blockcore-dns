@@ -10,22 +10,22 @@ public class DnsBackgroundService : BackgroundService
 {
     private readonly ILogger<DnsBackgroundService> logger;
 
-    public DnsBackgroundService(ILogger<DnsBackgroundService> logger, DnsMasterFile masterFile, IOptions<DnsSettings> options)
+    public DnsBackgroundService(ILogger<DnsBackgroundService> logger, DnsMasterFile dnsMasterFile, IOptions<DnsSettings> options)
     {
         this.logger = logger;
-        MasterFile = masterFile;
+        DnsMasterFile = dnsMasterFile;
         DnsSettings = options.Value;
     }
 
     public DnsSettings DnsSettings { get; }
 
-    public DnsMasterFile MasterFile { get; }
+    public DnsMasterFile DnsMasterFile { get; }
 
     public DnsServer DnsServer { get; set; }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        DnsServer = new DnsServer(MasterFile, DnsSettings.EndServerIp);
+        DnsServer = new DnsServer(DnsMasterFile, DnsSettings.EndServerIp);
 
         DnsServer.Requested += (sender, e) =>
         {

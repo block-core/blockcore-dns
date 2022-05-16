@@ -42,7 +42,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
             {
                 try
                 {
-                    string externalIpString = httpClient.GetStringAsync($"http://{host.Host}/api/dns/ipaddress").Result;
+                    string externalIpString = httpClient.GetStringAsync($"http://{host.DnsHost}/api/dns/ipaddress").Result;
                     externalIp = IPAddress.Parse(externalIpString.Replace("\\r\\n", "").Replace("\\n", "").Trim());
 
                     if (externalIp.IsIPv4MappedToIPv6)
@@ -53,7 +53,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError($"Fail to fetch external ip from host {host.Host} error= {ex}");
+                    logger.LogError($"Fail to fetch external ip from host {host.DnsHost} error= {ex}");
                     continue;
                 }
             }
@@ -65,17 +65,20 @@ public class AgentBackgroundService : IHostedService, IDisposable
                     DnsRequest request = new DnsRequest
                     {
                         Domain = host.Domain,
-                        IpAddress = externalIp.ToString()
+                        IpAddress = externalIp.ToString(),
+                        Port = host.Port,
+                        Service = host.Service,
+                        Symbol = host.Symbol
                     };
 
-                    var result = httpClient.PostAsJsonAsync($"http://{host.Host}/api/dns/addEntry", request).Result;
+                    var result = httpClient.PostAsJsonAsync($"http://{host.DnsHost}/api/dns/addEntry", request).Result;
 
-                    logger.LogInformation($"Updated host {host.Host} request {System.Text.Json.JsonSerializer.Serialize(request)}");
+                    logger.LogInformation($"Updated host {host.DnsHost} request {System.Text.Json.JsonSerializer.Serialize(request)}");
 
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError($"Fail to post to server {host.Host} error= {ex}");
+                    logger.LogError($"Fail to post to server {host.DnsHost} error= {ex}");
                 }
             }
         }

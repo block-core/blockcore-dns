@@ -12,7 +12,7 @@
 
     public class AgentHost
     {
-        public string Host { get; set; }
+        public string DnsHost { get; set; }
         public string Domain { get; set; }
         public int Port { get; set; }
         public string Symbol { get; set; }
