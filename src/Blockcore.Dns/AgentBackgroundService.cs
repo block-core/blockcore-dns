@@ -45,6 +45,9 @@ public class AgentBackgroundService : IHostedService, IDisposable
                     string externalIpString = httpClient.GetStringAsync($"http://{host.Host}/api/dns/ipaddress").Result;
                     externalIp = IPAddress.Parse(externalIpString.Replace("\\r\\n", "").Replace("\\n", "").Trim());
 
+                    if (externalIp.IsIPv4MappedToIPv6)
+                        externalIp = externalIp.MapToIPv4();
+
                     ExternalIp = externalIp;
                     logger.LogInformation($"Public ip = {externalIp}.");
                 }
@@ -62,7 +65,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
                     DnsRequest request = new DnsRequest
                     {
                         Domain = host.Domain,
-                        IpAddress = externalIp.IsIPv4MappedToIPv6 ? externalIp.MapToIPv4().ToString() : externalIp.ToString()
+                        IpAddress = externalIp.ToString()
                     };
 
                     var result = httpClient.PostAsJsonAsync($"http://{host.Host}/api/dns/addEntry", request).Result;
