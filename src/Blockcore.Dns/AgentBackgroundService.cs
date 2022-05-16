@@ -8,6 +8,8 @@ public class AgentBackgroundService : IHostedService, IDisposable
     private Timer timer = null!;
     private HttpClient httpClient;
     public AgentSettings AgentSettings { get; }
+    public IPAddress? ExternalIp { get; set; }
+
 
     public AgentBackgroundService(ILogger<AgentBackgroundService> logger, IOptions<AgentSettings> options)
     {
@@ -27,41 +29,51 @@ public class AgentBackgroundService : IHostedService, IDisposable
 
     private void DoWork(object? state)
     {
-        IPAddress externalIp = null;
-        try
+        if (!AgentSettings.Hosts.Any())
         {
-            // todo: add an endpoint on the dns api to return the callers ip
-            // todo: change this to call an end point on the host (or one of the hosts if several are configured)
-            string externalIpString = httpClient.GetStringAsync($"http://{AgentSettings.Hosts.First().Host}/api/dns/ipaddress").Result.Replace("\\r\\n", "").Replace("\\n", "").Trim();
-            externalIp = IPAddress.Parse(externalIpString);
-
-            logger.LogInformation($"Public ip = {externalIp}.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Fail to fetch external ip error= {ex}");
+            logger.LogWarning($"No hosts found, add hosts in the configuration file");
             return;
         }
 
-
-        foreach( var host in AgentSettings.Hosts)
+        IPAddress? externalIp = null;
+        foreach (var host in AgentSettings.Hosts)
         {
-            try
+            if (externalIp == null)
             {
-                DnsRequest request = new DnsRequest
+                try
                 {
-                    Domain = host.Domain,
-                    IpAddress = externalIp.IsIPv4MappedToIPv6 ? externalIp.MapToIPv4().ToString() : externalIp.ToString()
-                };
+                    string externalIpString = httpClient.GetStringAsync($"http://{host.Host}/api/dns/ipaddress").Result;
+                    externalIp = IPAddress.Parse(externalIpString.Replace("\\r\\n", "").Replace("\\n", "").Trim());
 
-                var result = httpClient.PostAsJsonAsync($"http://{host.Host}/api/dns/addEntry", request).Result;
-
-                logger.LogInformation($"Updated host {host.Host} request {System.Text.Json.JsonSerializer.Serialize(request)}");
-
+                    ExternalIp = externalIp;
+                    logger.LogInformation($"Public ip = {externalIp}.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Fail to fetch external ip from host {host.Host} error= {ex}");
+                    continue;
+                }
             }
-            catch (Exception ex)
+
+            if (externalIp != null)
             {
-                logger.LogError($"Fail to post to server {host.Host} error= {ex}");
+                try
+                {
+                    DnsRequest request = new DnsRequest
+                    {
+                        Domain = host.Domain,
+                        IpAddress = externalIp.IsIPv4MappedToIPv6 ? externalIp.MapToIPv4().ToString() : externalIp.ToString()
+                    };
+
+                    var result = httpClient.PostAsJsonAsync($"http://{host.Host}/api/dns/addEntry", request).Result;
+
+                    logger.LogInformation($"Updated host {host.Host} request {System.Text.Json.JsonSerializer.Serialize(request)}");
+
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Fail to post to server {host.Host} error= {ex}");
+                }
             }
         }
     }
