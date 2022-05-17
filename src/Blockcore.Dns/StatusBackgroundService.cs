@@ -8,7 +8,6 @@ public class StatusBackgroundService : IHostedService, IDisposable
     private Timer timer = null!;
     private HttpClient httpClient;
     public DnsSettings DnsSettings { get; }
-
     public DnsMasterFile DnsMasterFile { get; }
     public DomainService DomainService { get; }
 
@@ -19,6 +18,8 @@ public class StatusBackgroundService : IHostedService, IDisposable
         DomainService domainService)
     {
         this.logger = logger;
+        DnsMasterFile = dnsMasterFile;
+        DomainService = domainService;
         DnsSettings = options.Value;
         httpClient = new HttpClient();
     }
@@ -46,17 +47,14 @@ public class StatusBackgroundService : IHostedService, IDisposable
             {
                 if (serviceEntry.Domain != null)
                 {
-                    if (serviceEntry.DnsRequest.Service == "indexer")
+                    if (serviceEntry.DnsRequest.Service.ToLower() == "indexer")
                     {
                         var responseMessage = httpClient.GetAsync($"https://{serviceEntry.Domain}/api/stats").Result;
 
                         if(!responseMessage.IsSuccessStatusCode)
                         {
-                            DnsMasterFile.TryRemoveIPAddressResourceRecord(serviceEntry.DnsRequest);
                             DomainService.TryRemoveRecord(serviceEntry);
                         }
-
-                        logger.LogInformation($"Removed service entry {serviceEntry.DnsRequest}.");
                     }
                 }
             }
@@ -66,7 +64,6 @@ public class StatusBackgroundService : IHostedService, IDisposable
 
                 // todo: add failure counter threshold 
                 // in case of failure we still remove the entries
-                DnsMasterFile.TryRemoveIPAddressResourceRecord(serviceEntry.DnsRequest);
                 DomainService.TryRemoveRecord(serviceEntry);
             }
         }
