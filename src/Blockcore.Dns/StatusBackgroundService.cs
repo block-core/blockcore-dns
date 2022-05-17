@@ -51,7 +51,19 @@ public class StatusBackgroundService : IHostedService, IDisposable
                     {
                         var responseMessage = httpClient.GetAsync($"https://{serviceEntry.Domain}/api/stats").Result;
 
-                        if(!responseMessage.IsSuccessStatusCode)
+                        if (!responseMessage.IsSuccessStatusCode)
+                        {
+                            DomainService.TryRemoveRecord(serviceEntry);
+                        }
+                    }
+                }
+                else
+                {
+                    if (serviceEntry.IpAddress != null)
+                    {
+                        var responseMessage = httpClient.GetAsync($"http://{serviceEntry.IpAddress}:{serviceEntry.DnsRequest.Port}/api/stats").Result;
+
+                        if (!responseMessage.IsSuccessStatusCode)
                         {
                             DomainService.TryRemoveRecord(serviceEntry);
                         }
