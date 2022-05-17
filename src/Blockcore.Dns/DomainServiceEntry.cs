@@ -3,9 +3,9 @@ using System.Net;
 
 namespace Blockcore.Dns
 {
-    public class DnsEntry
+    public class DomainServiceEntry
     {
-        public Domain Domain { get; set; }
+        public Domain? Domain { get; set; }
         public IPAddress IpAddress { get; set; }
         public DnsRequest DnsRequest { get; set; }
 

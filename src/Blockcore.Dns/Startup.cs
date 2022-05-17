@@ -23,6 +23,7 @@ public class Startup
 
         // Configure your services here
         services.AddSingleton<DnsMasterFile>();
+        services.AddSingleton<DomainService>();
         services.AddHostedService<DnsBackgroundService>();
 
         services.AddSwaggerGen(options =>

@@ -9,7 +9,6 @@ namespace Blockcore.Dns
     public class DnsMasterFile: MasterFile
     {
         private object locker = new object();
-        private IList<DnsEntry> dnsEntries = new List<DnsEntry>();
 
         public DnsMasterFile(TimeSpan ttl) : base(ttl)
         {
@@ -19,11 +18,13 @@ namespace Blockcore.Dns
         {
         }
 
-        public bool TryAddIPAddressResourceRecord(DnsRequest dnsRequest)
+        public bool TryAddOrUpdateIPAddressResourceRecord(DnsRequest dnsRequest)
         {
+            if (string.IsNullOrEmpty(dnsRequest.Domain))
+                return false;
+
             bool modified = false;
             var record = new IPAddressResourceRecord(new Domain(dnsRequest.Domain), IPAddress.Parse(dnsRequest.IpAddress));
-            var newDnsEntry = new DnsEntry { DnsRequest = dnsRequest, Domain = record.Name, IpAddress = record.IPAddress };
             var res = Get(record.Name, record.Type);
 
             if (!res.Any())
@@ -33,10 +34,6 @@ namespace Blockcore.Dns
                     var currentList = entries.ToList();
                     currentList.Add(record);
                     entries = currentList;
-
-                    var currentDnsEntries = dnsEntries.ToList();
-                    currentDnsEntries.Add(newDnsEntry);
-                    dnsEntries = currentDnsEntries;
                 }
 
                 modified = true;
@@ -52,20 +49,12 @@ namespace Blockcore.Dns
                             continue;
                         }
 
-                        var dnsEntry = dnsEntries.Where(d => d.Domain == entry.Name).Single();
-
                         lock (locker)
                         {
                             var newEntries = entries.ToList();
-
                             newEntries.Remove(entry);
                             newEntries.Add(record);
                             entries = newEntries;
-
-                            var newDnsEntries = dnsEntries.ToList();
-                            newDnsEntries.Remove(dnsEntry);
-                            newDnsEntries.Add(newDnsEntry);
-                            dnsEntries = newDnsEntries;
                         }
 
                         modified = true;
@@ -77,6 +66,5 @@ namespace Blockcore.Dns
         }
 
         public IList<IResourceRecord> Entries {  get { return entries.ToList(); } }
-        public IList<DnsEntry> DnsEntries { get { return dnsEntries.ToList(); } }
     }
 }
