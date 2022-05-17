@@ -18,6 +18,28 @@ namespace Blockcore.Dns
         {
         }
 
+        public bool TryRemoveIPAddressResourceRecord(DnsRequest dnsRequest)
+        {
+            var record = new IPAddressResourceRecord(new Domain(dnsRequest.Domain), IPAddress.Parse(dnsRequest.IpAddress));
+            var res = Get(record.Name, record.Type);
+            foreach (var entry in res)
+            {
+                if (entry is IPAddressResourceRecord ipEntry)
+                {
+                    lock (locker)
+                    {
+                        var newEntries = entries.ToList();
+                        newEntries.Remove(entry);
+                        entries = newEntries;
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool TryAddOrUpdateIPAddressResourceRecord(DnsRequest dnsRequest)
         {
             if (string.IsNullOrEmpty(dnsRequest.Domain))

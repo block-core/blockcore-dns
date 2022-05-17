@@ -17,6 +17,18 @@ namespace Blockcore.Dns
         {
         }
 
+        public bool TryRemoveRecord(DomainServiceEntry serviceEntry)
+        {
+            lock (locker)
+            {
+                var newServiceEntries = domainServiceEntries.ToList();
+                newServiceEntries.Remove(serviceEntry);
+                domainServiceEntries = newServiceEntries;
+            }
+
+            return true;
+        }
+
         public bool TryAddRecord(DnsRequest dnsRequest)
         {
             var ipAddress = IPAddress.Parse(dnsRequest.IpAddress);

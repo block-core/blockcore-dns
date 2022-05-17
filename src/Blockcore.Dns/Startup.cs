@@ -25,6 +25,7 @@ public class Startup
         services.AddSingleton<DnsMasterFile>();
         services.AddSingleton<DomainService>();
         services.AddHostedService<DnsBackgroundService>();
+        services.AddHostedService<StatusBackgroundService>();
 
         services.AddSwaggerGen(options =>
         {
