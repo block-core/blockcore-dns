@@ -20,7 +20,7 @@ namespace Blockcore.Dns
         [HttpPost("addEntry")]
         public IActionResult AddEntry([FromBody] DnsRequest dnsRequest)
         {
-            DomainService.TryAddRecord(dnsRequest);
+            DomainService.TryAddRecord(dnsRequest.Data);
 
             return new OkResult();
         }

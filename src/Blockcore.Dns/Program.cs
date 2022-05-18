@@ -2,6 +2,8 @@
 
 namespace Blockcore.Dns
 {
+    using NBitcoin;
+    using NBitcoin.DataEncoders;
     using DNS.Client;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
@@ -11,15 +13,18 @@ namespace Blockcore.Dns
     /// </summary>
     public class Program
     {
+
         public static void Main(string[] args)
         {
             if (args.Contains("--did"))
             {
-
                 // generating a DID key
-                string keyHex = "TBD";
-                
-                Console.WriteLine($"Add this DID key to config {keyHex} ");
+                var key = new Key();
+                var secret = key.GetBitcoinSecret(new DummyNetwork());
+                string keyHex = Encoders.Hex.EncodeData(secret.ToBytes());
+                string pubkeyHex = Encoders.Hex.EncodeData(key.PubKey.ToBytes());
+                Console.WriteLine($"Secret key add to config {keyHex} ");
+                Console.WriteLine($"Public identity did:is:{pubkeyHex} ");
                 return;
             }
 
@@ -56,6 +61,16 @@ namespace Blockcore.Dns
 
                   webBuilder.UseStartup<Startup>();
               });
+        }
+        
+        public class DummyNetwork : Networks.Network
+        {
+            public DummyNetwork()
+            {
+                this.Base58Prefixes = new byte[12][];
+                this.Base58Prefixes[(int)Networks.Base58Type.SECRET_KEY] = new byte[] { (0) };
+            }
+
         }
     }
 }

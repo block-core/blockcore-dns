@@ -7,7 +7,7 @@ namespace Blockcore.Dns
     {
         public Domain? Domain { get; set; }
         public IPAddress IpAddress { get; set; }
-        public DnsRequest DnsRequest { get; set; }
+        public DnsData DnsRequest { get; set; }
 
         public override string ToString()
         {

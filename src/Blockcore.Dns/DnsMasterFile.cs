@@ -18,7 +18,7 @@ namespace Blockcore.Dns
         {
         }
 
-        public bool TryRemoveIPAddressResourceRecord(DnsRequest dnsRequest)
+        public bool TryRemoveIPAddressResourceRecord(DnsData dnsRequest)
         {
             var record = new IPAddressResourceRecord(new Domain(dnsRequest.Domain), IPAddress.Parse(dnsRequest.IpAddress));
             var res = Get(record.Name, record.Type);
@@ -40,7 +40,7 @@ namespace Blockcore.Dns
             return false;
         }
 
-        public bool TryAddOrUpdateIPAddressResourceRecord(DnsRequest dnsRequest)
+        public bool TryAddOrUpdateIPAddressResourceRecord(DnsData dnsRequest)
         {
             if (string.IsNullOrEmpty(dnsRequest.Domain))
                 return false;

@@ -2,7 +2,7 @@
 {
     public class AgentSettings
     {
-        public string DidKey { get; set; }
+        public string Secret { get; set; }
 
         public int IntervalMin { get; set; } = 5;
 

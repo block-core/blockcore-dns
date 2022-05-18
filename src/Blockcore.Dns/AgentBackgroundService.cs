@@ -62,7 +62,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
             {
                 try
                 {
-                    DnsRequest request = new DnsRequest
+                    DnsData request = new DnsData
                     {
                         Domain = host.Domain,
                         IpAddress = externalIp.ToString(),
