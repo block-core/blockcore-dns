@@ -10,11 +10,31 @@ namespace Blockcore.Dns
     {
         private object locker = new object();
         private IList<DomainServiceEntry> domainServiceEntries = new List<DomainServiceEntry>();
+        private readonly ILogger<DomainService> logger;
 
         public IList<DomainServiceEntry> DomainServiceEntries { get { return domainServiceEntries.ToList(); } }
+        public DnsMasterFile DnsMasterFile { get; }
 
-        public DomainService()
+        public DomainService(ILogger<DomainService> logger, DnsMasterFile dnsMasterFile)
         {
+            this.logger = logger;
+            DnsMasterFile = dnsMasterFile;
+        }
+
+        public bool TryRemoveRecord(DomainServiceEntry serviceEntry)
+        {
+            lock (locker)
+            {
+                var newServiceEntries = domainServiceEntries.ToList();
+                newServiceEntries.Remove(serviceEntry);
+                domainServiceEntries = newServiceEntries;
+
+                DnsMasterFile.TryRemoveIPAddressResourceRecord(serviceEntry.DnsRequest);
+            }
+
+            logger.LogInformation($"Remove entry = {serviceEntry.DnsRequest}");
+
+            return true;
         }
 
         public bool TryAddRecord(DnsRequest dnsRequest)
@@ -38,6 +58,11 @@ namespace Blockcore.Dns
                     {
                         domainDomainServiceEntry.IpAddress = ipAddress;
                         domainDomainServiceEntry.DnsRequest = dnsRequest;
+
+                        DnsMasterFile.TryAddOrUpdateIPAddressResourceRecord(dnsRequest);
+
+                        logger.LogInformation($"Update entry = {dnsRequest}");
+
                         return true;
                     }
                 }
@@ -55,7 +80,11 @@ namespace Blockcore.Dns
                     var newServiceEntries = domainServiceEntries.ToList();
                     newServiceEntries.Add(newDnsServiceEntry);
                     domainServiceEntries = newServiceEntries;
+
+                    DnsMasterFile.TryAddOrUpdateIPAddressResourceRecord(dnsRequest);
                 }
+
+                logger.LogInformation($"Added entry = {dnsRequest}");
 
                 return true;
             }
@@ -64,8 +93,15 @@ namespace Blockcore.Dns
                 // existing entry check if the domain has changed
                 if (domain != null && !domain.Equals(domainServiceEntry.Domain))
                 {
-                    domainServiceEntry.Domain = domainServiceEntry.Domain;
+                    var oldEntry = domainServiceEntry.DnsRequest;
+                    domainServiceEntry.Domain = domain;
                     domainServiceEntry.DnsRequest = dnsRequest;
+
+                    DnsMasterFile.TryRemoveIPAddressResourceRecord(oldEntry);
+                    DnsMasterFile.TryAddOrUpdateIPAddressResourceRecord(dnsRequest);
+
+                    logger.LogInformation($"Update entry = {dnsRequest}");
+
                     return true;
                 }
             }
