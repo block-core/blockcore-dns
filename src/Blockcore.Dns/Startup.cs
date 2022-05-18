@@ -22,6 +22,7 @@ public class Startup
         services.AddResponseCompression();
 
         // Configure your services here
+        services.AddSingleton<IdentityService>();
         services.AddSingleton<DnsMasterFile>();
         services.AddSingleton<DomainService>();
         services.AddHostedService<DnsBackgroundService>();

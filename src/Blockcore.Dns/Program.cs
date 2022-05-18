@@ -40,6 +40,7 @@ namespace Blockcore.Dns
                    .ConfigureServices((hostContext, services) =>
                    {
                        services.Configure<AgentSettings>(hostContext.Configuration.GetSection("DnsAgent"));
+                       services.AddSingleton<IdentityService>();
                        services.AddHostedService<AgentBackgroundService>();
                    });
             }

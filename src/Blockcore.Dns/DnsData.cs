@@ -9,6 +9,7 @@ namespace Blockcore.Dns
         public int Port { get; set; }
         public string Symbol { get; set; }
         public string Service { get; set; }
+        public long Ticks { get; set; }
 
         public override string ToString()
         {
