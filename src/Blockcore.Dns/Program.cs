@@ -21,7 +21,7 @@ namespace Blockcore.Dns
                 // generating a DID key
                 var key = new Key();
                 var secret = key.GetBitcoinSecret(new DummyNetwork());
-                string keyHex = Encoders.Hex.EncodeData(secret.ToBytes());
+                string keyHex = Encoders.Hex.EncodeData(secret.ToBytes().Take(32).ToArray()); // bitcoin appends 1 byte
                 string pubkeyHex = Encoders.Hex.EncodeData(key.PubKey.ToBytes());
                 Console.WriteLine($"Secret key add to config {keyHex} ");
                 Console.WriteLine($"Public identity did:is:{pubkeyHex} ");

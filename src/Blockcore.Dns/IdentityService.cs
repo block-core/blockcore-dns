@@ -23,18 +23,18 @@
                 {
                     var created = new DateTime(dnsRequest.Data.Ticks);
 
-                    if ((DateTime.UtcNow - created).Minutes > 1)
+                    if ((DateTime.UtcNow - created).TotalMinutes > 1)
                     {
                         return false;
                     }
 
-                    var pubkeyString = identity.Substring(identity.IndexOf("did:is:"));
+                    var pubkeyString = identity.Substring(7);
                     PubKey pubKey = new PubKey(Encoders.Hex.DecodeData(pubkeyString));
 
                     var serialized = JsonSerializer.Serialize(dnsRequest.Data);
                     var bytes = Encoding.UTF8.GetBytes(serialized);
                     var hashed = Hashes.Hash256(bytes);
-                    var signature = ECDSASignature.FromDER(Encoders.Hex.DecodeData(dnsRequest.Auth.Signature));
+                    var signature = new SchnorrSignature(Encoders.Hex.DecodeData(dnsRequest.Auth.Signature));
 
                     var success =  pubKey.Verify(hashed, signature);
 
@@ -54,8 +54,8 @@
             var serialized = JsonSerializer.Serialize(dnsRequest.Data);
             var bytes = Encoding.UTF8.GetBytes(serialized);
             var hashed = Hashes.Hash256(bytes);
-            var signed = key.Sign(hashed);
-            var siganture = Encoders.Hex.EncodeData(signed.ToDER());
+            var signed = key.SignSchnorr(hashed);
+            var siganture = Encoders.Hex.EncodeData(signed.ToBytes());
             var identity = $"did:is:{ Encoders.Hex.EncodeData(key.PubKey.ToBytes()) }";
 
             dnsRequest.Auth = new DnsAuth
