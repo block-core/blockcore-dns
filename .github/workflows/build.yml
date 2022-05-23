@@ -112,7 +112,7 @@ jobs:
     - name: Release
       uses: sondreb/action-release@main
       with:
-        commit: 'master'
+        commit: 'main'
         token: ${{ secrets.GITHUB_TOKEN }}
         files: "${{env.RELEASE_PATH}}"
         draft: true
