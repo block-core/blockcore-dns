@@ -30,7 +30,7 @@ jobs:
     
     env:
       PROJECT_NAME: 'Blockcore.Dns'
-      SOLUTION_PATH: 'Blockcore.Dns.sln'
+      SOLUTION_PATH: 'src/Blockcore.Dns.sln'
       PROJECT_PATH: 'src/Blockcore.Dns/Blockcore.Dns.csproj' 
       BUILD_CONFIGURATION: 'Release'
 

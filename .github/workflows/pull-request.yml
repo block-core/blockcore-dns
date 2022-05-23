@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     env:
-      SOLUTION_PATH: 'Blockcore.Dns.sln'
+      SOLUTION_PATH: 'src/Blockcore.Dns.sln'
       BUILD_CONFIGURATION: 'Release'
 
     steps:
