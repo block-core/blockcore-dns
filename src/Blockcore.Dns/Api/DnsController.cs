@@ -2,7 +2,7 @@ using DNS.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Blockcore.Dns
+namespace Blockcore.Dns.Api
 {
     [ApiController]
     [Route("api/dns")]
@@ -13,7 +13,11 @@ namespace Blockcore.Dns
         private IIdentityService identityService;
         private DnsSettings dnsSettings;
 
-        public DnsController(ILogger<DnsController> logger, IDomainService domainService, IIdentityService identityService, IOptions<DnsSettings> options)
+        public DnsController(
+            ILogger<DnsController> logger, 
+            IDomainService domainService, 
+            IIdentityService identityService, 
+            IOptions<DnsSettings> options)
         {
             this.logger = logger; 
             dnsSettings = options.Value;

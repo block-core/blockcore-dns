@@ -1,6 +1,7 @@
 ﻿namespace Blockcore.Dns
 {
     using Blockcore.Dns.Agent;
+    using Blockcore.Dns.Api;
     using NBitcoin;
     using NBitcoin.Crypto;
     using NBitcoin.DataEncoders;

@@ -1,5 +1,6 @@
 
 using Blockcore.Dns.Agent;
+using Blockcore.Dns.Api;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
