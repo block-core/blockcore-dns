@@ -1,11 +1,7 @@
-using DNS.Server;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
-
 namespace Blockcore.Dns;
+
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.OpenApi.Models;
 
 public class Startup
 {
@@ -23,9 +19,9 @@ public class Startup
         services.AddResponseCompression();
 
         // Configure your services here
-        services.AddSingleton<IdentityService>();
-        services.AddSingleton<DnsMasterFile>();
-        services.AddSingleton<DomainService>();
+        services.AddSingleton<IIdentityService, IdentityService>();
+        services.AddSingleton<IDnsMasterFile, DnsMasterFile>();
+        services.AddSingleton<IDomainService, DomainService>();
         services.AddHostedService<DnsBackgroundService>();
         services.AddHostedService<StatusBackgroundService>();
 
@@ -90,5 +86,4 @@ public class Startup
             }
         }
     }
-
 }

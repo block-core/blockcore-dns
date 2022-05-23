@@ -6,7 +6,7 @@
     using System.Text;
     using System.Text.Json;
 
-    public class IdentityService
+    public class IdentityService : IIdentityService
     {
         private readonly ILogger<IdentityService> logger;
 
@@ -41,7 +41,7 @@
                     var hashed = Hashes.Hash256(bytes);
                     var signature = new SchnorrSignature(Encoders.Hex.DecodeData(dnsRequest.Auth.Signature));
 
-                    var success =  pubKey.Verify(hashed, signature);
+                    var success = pubKey.Verify(hashed, signature);
 
                     return success;
                 }

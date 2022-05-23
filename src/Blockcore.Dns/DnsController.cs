@@ -9,28 +9,28 @@ namespace Blockcore.Dns
     public class DnsController : Controller
     {
         private readonly ILogger<DnsController> logger;
+        private IDomainService domainService;
+        private IIdentityService identityService;
+        private DnsSettings dnsSettings;
 
-        public DnsController(ILogger<DnsController> logger, DomainService domainService, IdentityService identityService, IOptions<DnsSettings> options)
+        public DnsController(ILogger<DnsController> logger, IDomainService domainService, IIdentityService identityService, IOptions<DnsSettings> options)
         {
             this.logger = logger; 
-            DnsSettings = options.Value;
-            DomainService = domainService;
-            IdentityService = identityService;
+            dnsSettings = options.Value;
+            this.domainService = domainService;
+            this.identityService = identityService;
         }
 
-        public DomainService DomainService { get; }
-        public IdentityService IdentityService { get; }
-        public DnsSettings DnsSettings { get; }
 
         [HttpPost("addEntry")]
         public IActionResult AddEntry([FromBody] DnsRequest dnsRequest)
         {
-            if (!IdentityService.VerifyIdentity(dnsRequest, DnsSettings))
+            if (!identityService.VerifyIdentity(dnsRequest, dnsSettings))
             {
                 return new StatusCodeResult(401);
             }
 
-            DomainService.TryAddRecord(dnsRequest.Data);
+            domainService.TryAddRecord(dnsRequest.Data);
 
             return new OkResult();
         }
@@ -38,13 +38,13 @@ namespace Blockcore.Dns
         [HttpGet("entries")]
         public IActionResult Entries()
         {
-            return new OkObjectResult(DomainService.DnsMasterFile.Entries.Select(s => s.ToString()));
+            return new OkObjectResult(domainService.DnsServiceEntries.Select(s => s.ToString()));
         }
 
         [HttpGet("services")]
         public IActionResult ServiceEntries()
         {
-            return new OkObjectResult(DomainService.DomainServiceEntries.Select(s => s.ToString()));
+            return new OkObjectResult(domainService.DomainServiceEntries.Select(s => s.ToString()));
         }
 
         [HttpGet("ipaddress")]

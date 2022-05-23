@@ -1,6 +1,4 @@
-﻿using DNS.Protocol.Utils;
-
-namespace Blockcore.Dns
+﻿namespace Blockcore.Dns
 {
     public class DnsRequest
     {

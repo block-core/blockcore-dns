@@ -10,53 +10,53 @@ using System.Text;
 public class DnsBackgroundService : BackgroundService
 {
     private readonly ILogger<DnsBackgroundService> logger;
+    private DnsSettings dnsSettings;
+    private IDnsMasterFile dnsMasterFile;
+    private DnsServer? dnsServer;
 
-    public DnsBackgroundService(ILogger<DnsBackgroundService> logger, DnsMasterFile dnsMasterFile, IOptions<DnsSettings> options)
+    public DnsBackgroundService(
+        ILogger<DnsBackgroundService> logger, 
+        IDnsMasterFile dnsMasterFile, 
+        IOptions<DnsSettings> options)
     {
         this.logger = logger;
-        DnsMasterFile = dnsMasterFile;
-        DnsSettings = options.Value;
+        this.dnsMasterFile = dnsMasterFile;
+        dnsSettings = options.Value;
     }
-
-    public DnsSettings DnsSettings { get; }
-
-    public DnsMasterFile DnsMasterFile { get; }
-
-    public DnsServer DnsServer { get; set; }
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
         StringBuilder stringBuilder = new();
         stringBuilder.AppendLine();
 
-        foreach (string identity in DnsSettings.Identities)
+        foreach (string identity in dnsSettings.Identities)
         {
             stringBuilder.AppendLine(identity);
         }
 
         logger.LogInformation($"Configured identities : {stringBuilder}");
 
-        logger.LogInformation($"Verify identities : {DnsSettings.VerifyIdentity}.");
+        logger.LogInformation($"Verify identities on registration : {dnsSettings.VerifyIdentity}.");
 
         return base.StartAsync(cancellationToken);
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        DnsServer = new DnsServer(DnsMasterFile, DnsSettings.EndServerIp);
+        dnsServer = new DnsServer(dnsMasterFile as DnsMasterFile, dnsSettings.EndServerIp);
 
-        DnsServer.Requested += (sender, e) =>
+        dnsServer.Requested += (sender, e) =>
         {
             logger.LogDebug($"Dns Request = {e.Request}");
         };
 
-        DnsServer.Responded += (sender, e) =>
+        dnsServer.Responded += (sender, e) =>
         {
             logger.LogInformation("{0} => {1}", e.Request, e.Response);
         };
 
         // Log errors
-        DnsServer.Errored += (sender, e) =>
+        dnsServer.Errored += (sender, e) =>
         {
             if (e.Exception.Message == "The operation was canceled.")
                 return;
@@ -65,14 +65,14 @@ public class DnsBackgroundService : BackgroundService
         };
 
         // Start the server (by default it listens on port 53)
-        DnsServer.Listening += (sender, e) => logger.LogInformation($"Listening on port {DnsSettings.ListenPort}");
+        dnsServer.Listening += (sender, e) => logger.LogInformation($"Listening on port {dnsSettings.ListenPort}");
 
         stoppingToken.Register(() =>
         {
             logger.LogInformation("Dns disposing");
-            DnsServer.Dispose();
+            dnsServer.Dispose();
         });
 
-        return DnsServer.Listen(DnsSettings.ListenPort);
+        return dnsServer.Listen(dnsSettings.ListenPort);
     }
 }

@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockcore.Dns", "Blockcore.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{527CB77A-43D6-4C75-A87F-0023F5793E17}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		..\.gitignore = ..\.gitignore
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
@@ -14,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blockcore.Dns.Test", "Blockcore.Dns.Test\Blockcore.Dns.Test.csproj", "{9AB06116-A6BD-4F1F-B115-EF666A3E5988}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blockcore.Dns.Test", "Blockcore.Dns.Test\Blockcore.Dns.Test.csproj", "{9AB06116-A6BD-4F1F-B115-EF666A3E5988}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,20 +2,18 @@
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using DNS.Server;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Blockcore.Dns
 {
-    public class DnsMasterFile: MasterFile
+    public class DnsMasterFile : MasterFile, IDnsMasterFile
     {
-        private object locker = new object();
+        private object locker;
 
-        public DnsMasterFile(TimeSpan ttl) : base(ttl)
+        public DnsMasterFile(IOptions<DnsSettings> options) : base(TimeSpan.FromMinutes(options.Value.DnsttlMinutes))
         {
-        }
-
-        public DnsMasterFile() : base()
-        {
+            locker = new object();
         }
 
         public bool TryRemoveIPAddressResourceRecord(DnsData dnsRequest)
@@ -87,6 +85,6 @@ namespace Blockcore.Dns
             return modified;
         }
 
-        public IList<IResourceRecord> Entries {  get { return entries.ToList(); } }
+        public IList<IResourceRecord> Entries { get { return entries.ToList(); } }
     }
 }

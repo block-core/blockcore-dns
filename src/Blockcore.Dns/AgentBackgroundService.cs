@@ -2,45 +2,58 @@ namespace Blockcore.Dns;
 using Microsoft.Extensions.Options;
 using System.Net;
 
+/// <summary>
+/// A background service that will resolve the agnets public ip address and 
+/// register domain entries with the blockcore-dns server.
+/// </summary>
 public class AgentBackgroundService : IHostedService, IDisposable
 {
     private readonly ILogger<AgentBackgroundService> logger;
-    private Timer timer = null!;
+    private Timer timer;
     private HttpClient httpClient;
-    public AgentSettings AgentSettings { get; }
-    public IPAddress? ExternalIp { get; set; }
-    public IdentityService IdentityService { get; }
+    private AgentSettings agentSettings;
+    private IIdentityService identityService;
 
-    public AgentBackgroundService(ILogger<AgentBackgroundService> logger, IdentityService identityService, IOptions<AgentSettings> options)
+    public IPAddress? ExternalIp { get; set; }
+
+    public AgentBackgroundService(
+        ILogger<AgentBackgroundService> logger, 
+        IIdentityService identityService, 
+        IOptions<AgentSettings> options)
     {
+        timer = null!;
         this.logger = logger;
-        IdentityService = identityService;
-        AgentSettings = options.Value;
+        this.identityService = identityService;
+        agentSettings = options.Value;
         httpClient = new HttpClient();
     }
 
+
     public Task StartAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation($"Configured identity = {IdentityService.GetIdentity(AgentSettings)}.");
+        logger.LogInformation($"Configured identity = {identityService.GetIdentity(agentSettings)}.");
 
-        logger.LogInformation($"Timed Hosted Service running every {AgentSettings.IntervalMin} min.");
+        logger.LogInformation($"Timed Hosted Service running every {agentSettings.IntervalMin} min.");
 
-        timer = new Timer(DoWork, null, TimeSpan.Zero,TimeSpan.FromMinutes(AgentSettings.IntervalMin));
+        timer = new Timer(DoWork, null, TimeSpan.Zero,TimeSpan.FromMinutes(agentSettings.IntervalMin));
 
         return Task.CompletedTask;
     }
 
     private void DoWork(object? state)
     {
-        if (!AgentSettings.Hosts.Any())
+        if (!agentSettings.Hosts.Any())
         {
             logger.LogWarning($"No hosts found, add hosts in the configuration file");
             return;
         }
 
         IPAddress? externalIp = null;
-        foreach (var host in AgentSettings.Hosts)
+        foreach (var host in agentSettings.Hosts)
         {
+            // use one of the blockcore-dns hosts to revolve
+            // the public ip address for the agent.
+
             if (externalIp == null)
             {
                 try
@@ -77,7 +90,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
                         }
                     };
 
-                    IdentityService.CreateIdentity(request, AgentSettings);
+                    identityService.CreateIdentity(request, agentSettings);
 
                     var result = httpClient.PostAsJsonAsync($"http://{host.DnsHost}/api/dns/addEntry", request).Result;
 

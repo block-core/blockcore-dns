@@ -1,47 +1,51 @@
 namespace Blockcore.Dns;
 using Microsoft.Extensions.Options;
-using System.Net;
 
+/// <summary>
+/// A background service that will iterate over all the registered domains
+/// (or if the domain is null it will try the ip address) and check if the domain is still online.
+/// If the domain is not online it will get unregistered.
+/// </summary>
 public class StatusBackgroundService : IHostedService, IDisposable
 {
-    private readonly ILogger<AgentBackgroundService> logger;
-    private Timer timer = null!;
-    private HttpClient httpClient;
-    public DnsSettings DnsSettings { get; }
-    public DnsMasterFile DnsMasterFile { get; }
-    public DomainService DomainService { get; }
+    private readonly ILogger<StatusBackgroundService> logger;
+    private Timer timer;
+    private readonly HttpClient httpClient;
+    private readonly DnsSettings dnsSettings;
+    private readonly IDomainService domainService;
 
     public StatusBackgroundService(
-        ILogger<AgentBackgroundService> logger, 
+        ILogger<StatusBackgroundService> logger, 
         IOptions<DnsSettings> options,
-        DnsMasterFile dnsMasterFile, 
-        DomainService domainService)
+        IDomainService domainService)
     {
+        timer = null!;
         this.logger = logger;
-        DnsMasterFile = dnsMasterFile;
-        DomainService = domainService;
-        DnsSettings = options.Value;
+        this.domainService = domainService;
+        dnsSettings = options.Value;
         httpClient = new HttpClient();
     }
 
     public Task StartAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation($"Timed Hosted Service running every {DnsSettings.IntervalMin} min.");
+        logger.LogInformation($"Timed Hosted Service running every {dnsSettings.IntervalMin} min.");
 
-        timer = new Timer(DoWork, null, TimeSpan.FromMinutes(DnsSettings.IntervalMin), TimeSpan.FromMinutes(DnsSettings.IntervalMin));
+        timer = new Timer(DoWork, null, TimeSpan.FromMinutes(dnsSettings.IntervalMin), TimeSpan.FromMinutes(dnsSettings.IntervalMin));
 
         return Task.CompletedTask;
     }
 
     private void DoWork(object? state)
     {
-        if (!DomainService.DomainServiceEntries.Any())
+        var domainEntrie = domainService.DomainServiceEntries;
+
+        if (!domainEntrie.Any())
         {
             logger.LogDebug($"No domain services found");
             return;
         }
 
-        foreach (var serviceEntry in DomainService.DomainServiceEntries)
+        foreach (var serviceEntry in domainEntrie)
         {
             try
             {
@@ -58,7 +62,7 @@ public class StatusBackgroundService : IHostedService, IDisposable
 
                     if (!responseMessage.IsSuccessStatusCode)
                     {
-                        DomainService.TryRemoveRecord(serviceEntry);
+                        domainService.TryRemoveRecord(serviceEntry);
                     }
                 }
             }
@@ -68,7 +72,7 @@ public class StatusBackgroundService : IHostedService, IDisposable
 
                 // todo: add failure counter threshold 
                 // in case of failure we still remove the entries
-                DomainService.TryRemoveRecord(serviceEntry);
+                domainService.TryRemoveRecord(serviceEntry);
             }
         }
     }

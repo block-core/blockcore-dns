@@ -7,5 +7,6 @@
         public string EndServerIp { get; set; }
         public string[] Identities { get; set; }
         public bool VerifyIdentity { get; set; } = true;
+        public int DnsttlMinutes { get; set; } = 20;  
     }
 }
