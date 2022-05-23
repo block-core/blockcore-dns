@@ -1,13 +1,10 @@
 
+using Blockcore.Dns.Agent;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
-using FluentAssertions;
-using static Blockcore.Dns.Program;
-using NBitcoin.DataEncoders;
-using NBitcoin;
-using System.Linq;
 using System;
+using Xunit;
 
 namespace Blockcore.Dns.Test
 {

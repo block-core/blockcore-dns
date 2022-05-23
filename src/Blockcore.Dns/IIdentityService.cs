@@ -1,4 +1,6 @@
-﻿namespace Blockcore.Dns
+﻿using Blockcore.Dns.Agent;
+
+namespace Blockcore.Dns
 {
     public interface IIdentityService
     {

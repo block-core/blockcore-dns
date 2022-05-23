@@ -1,4 +1,4 @@
-namespace Blockcore.Dns;
+namespace Blockcore.Dns.Agent;
 
 public class StartupAgent
 {

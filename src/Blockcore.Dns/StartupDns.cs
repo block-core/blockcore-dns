@@ -3,11 +3,11 @@ namespace Blockcore.Dns;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.OpenApi.Models;
 
-public class Startup
+public class StartupDns
 {
     public IConfiguration Configuration { get; }
 
-    public Startup(IConfiguration configuration)
+    public StartupDns(IConfiguration configuration)
     {
         Configuration = configuration;
     }
@@ -27,7 +27,7 @@ public class Startup
 
         services.AddSwaggerGen(options =>
         {
-            string assemblyVersion = typeof(Startup).Assembly.GetName().Version.ToString();
+            string assemblyVersion = typeof(StartupDns).Assembly.GetName().Version.ToString();
 
             options.SwaggerDoc("Dns", new OpenApiInfo
             {

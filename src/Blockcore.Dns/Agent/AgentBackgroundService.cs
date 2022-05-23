@@ -1,4 +1,4 @@
-namespace Blockcore.Dns;
+namespace Blockcore.Dns.Agent;
 using Microsoft.Extensions.Options;
 using System.Net;
 

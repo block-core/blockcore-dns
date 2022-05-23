@@ -1,4 +1,5 @@
 ﻿namespace Blockcore.Dns;
+using Blockcore.Dns.Agent;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -60,7 +61,7 @@ public class Program
                   serverOptions.AddServerHeader = false;
               });
 
-              webBuilder.UseStartup<Startup>();
+              webBuilder.UseStartup<StartupDns>();
           });
     }
 
