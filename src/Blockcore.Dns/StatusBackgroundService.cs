@@ -45,28 +45,20 @@ public class StatusBackgroundService : IHostedService, IDisposable
         {
             try
             {
-                if (serviceEntry.Domain != null)
+                if (serviceEntry.DnsRequest.Service.ToLower() == "indexer")
                 {
-                    if (serviceEntry.DnsRequest.Service.ToLower() == "indexer")
-                    {
-                        var responseMessage = httpClient.GetAsync($"https://{serviceEntry.Domain}/api/stats").Result;
+                    string? url = serviceEntry.Domain != null ? $"https://{serviceEntry.Domain}/api/stats" 
+                                : serviceEntry.IpAddress != null ? $"http://{serviceEntry.IpAddress}:{serviceEntry.DnsRequest.Port}/api/stats" 
+                                : null;
 
-                        if (!responseMessage.IsSuccessStatusCode)
-                        {
-                            DomainService.TryRemoveRecord(serviceEntry);
-                        }
-                    }
-                }
-                else
-                {
-                    if (serviceEntry.IpAddress != null)
-                    {
-                        var responseMessage = httpClient.GetAsync($"http://{serviceEntry.IpAddress}:{serviceEntry.DnsRequest.Port}/api/stats").Result;
+                    if (url == null)
+                        continue;
 
-                        if (!responseMessage.IsSuccessStatusCode)
-                        {
-                            DomainService.TryRemoveRecord(serviceEntry);
-                        }
+                    var responseMessage = httpClient.GetAsync(url).Result;
+
+                    if (!responseMessage.IsSuccessStatusCode)
+                    {
+                        DomainService.TryRemoveRecord(serviceEntry);
                     }
                 }
             }

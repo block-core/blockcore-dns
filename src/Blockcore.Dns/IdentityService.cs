@@ -17,6 +17,11 @@
 
         public bool VerifyIdentity(DnsRequest dnsRequest, DnsSettings dnsSettings)
         {
+            if (!dnsSettings.VerifyIdentity)
+            {
+                return true;
+            }
+
             foreach (var identity in dnsSettings.Identities)
             {
                 if (identity == dnsRequest.Auth.Identity)

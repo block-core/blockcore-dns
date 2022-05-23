@@ -40,6 +40,9 @@ public class DnsBackgroundService : BackgroundService
         // Log errors
         DnsServer.Errored += (sender, e) =>
         {
+            if (e.Exception.Message == "The operation was canceled.")
+                return;
+
             logger.LogError(e.Exception.Message);
         };
 
