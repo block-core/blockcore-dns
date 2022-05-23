@@ -69,5 +69,14 @@
                 Identity = identity
             };
         }
+
+        public string GetIdentity(AgentSettings agentSettings)
+        {
+            var key = new Key(Encoders.Hex.DecodeData(agentSettings.Secret));
+
+            var identity = $"did:is:{ Encoders.Hex.EncodeData(key.PubKey.ToBytes()) }";
+
+            return identity;
+        }
     }
 }

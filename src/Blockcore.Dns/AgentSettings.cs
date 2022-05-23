@@ -3,9 +3,7 @@
     public class AgentSettings
     {
         public string Secret { get; set; }
-
         public int IntervalMin { get; set; } = 5;
-
         public AgentHost[] Hosts { get; set; }
 
     }

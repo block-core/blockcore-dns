@@ -21,6 +21,8 @@ public class AgentBackgroundService : IHostedService, IDisposable
 
     public Task StartAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation($"Configured identity = {IdentityService.GetIdentity(AgentSettings)}.");
+
         logger.LogInformation($"Timed Hosted Service running every {AgentSettings.IntervalMin} min.");
 
         timer = new Timer(DoWork, null, TimeSpan.Zero,TimeSpan.FromMinutes(AgentSettings.IntervalMin));
