@@ -5,6 +5,7 @@ namespace Blockcore.Dns;
 using DNS.Client;
 using DNS.Server;
 using Microsoft.Extensions.Options;
+using System.Text;
 
 public class DnsBackgroundService : BackgroundService
 {
@@ -23,6 +24,23 @@ public class DnsBackgroundService : BackgroundService
 
     public DnsServer DnsServer { get; set; }
 
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.AppendLine();
+
+        foreach (string identity in DnsSettings.Identities)
+        {
+            stringBuilder.AppendLine(identity);
+        }
+
+        logger.LogInformation($"Configured identities : {stringBuilder}");
+
+        logger.LogInformation($"Verify identities : {DnsSettings.VerifyIdentity}.");
+
+        return base.StartAsync(cancellationToken);
+    }
+
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         DnsServer = new DnsServer(DnsMasterFile, DnsSettings.EndServerIp);
@@ -40,6 +58,9 @@ public class DnsBackgroundService : BackgroundService
         // Log errors
         DnsServer.Errored += (sender, e) =>
         {
+            if (e.Exception.Message == "The operation was canceled.")
+                return;
+
             logger.LogError(e.Exception.Message);
         };
 

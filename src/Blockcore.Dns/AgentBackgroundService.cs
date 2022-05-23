@@ -9,17 +9,20 @@ public class AgentBackgroundService : IHostedService, IDisposable
     private HttpClient httpClient;
     public AgentSettings AgentSettings { get; }
     public IPAddress? ExternalIp { get; set; }
+    public IdentityService IdentityService { get; }
 
-
-    public AgentBackgroundService(ILogger<AgentBackgroundService> logger, IOptions<AgentSettings> options)
+    public AgentBackgroundService(ILogger<AgentBackgroundService> logger, IdentityService identityService, IOptions<AgentSettings> options)
     {
         this.logger = logger;
+        IdentityService = identityService;
         AgentSettings = options.Value;
         httpClient = new HttpClient();
     }
 
     public Task StartAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation($"Configured identity = {IdentityService.GetIdentity(AgentSettings)}.");
+
         logger.LogInformation($"Timed Hosted Service running every {AgentSettings.IntervalMin} min.");
 
         timer = new Timer(DoWork, null, TimeSpan.Zero,TimeSpan.FromMinutes(AgentSettings.IntervalMin));
@@ -64,12 +67,17 @@ public class AgentBackgroundService : IHostedService, IDisposable
                 {
                     DnsRequest request = new DnsRequest
                     {
-                        Domain = host.Domain,
-                        IpAddress = externalIp.ToString(),
-                        Port = host.Port,
-                        Service = host.Service,
-                        Symbol = host.Symbol
+                        Data = new DnsData
+                        {
+                            Domain = host.Domain,
+                            IpAddress = externalIp.ToString(),
+                            Port = host.Port,
+                            Service = host.Service,
+                            Symbol = host.Symbol
+                        }
                     };
+
+                    IdentityService.CreateIdentity(request, AgentSettings);
 
                     var result = httpClient.PostAsJsonAsync($"http://{host.DnsHost}/api/dns/addEntry", request).Result;
 

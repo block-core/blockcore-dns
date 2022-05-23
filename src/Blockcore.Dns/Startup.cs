@@ -1,5 +1,6 @@
 using DNS.Server;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -22,6 +23,7 @@ public class Startup
         services.AddResponseCompression();
 
         // Configure your services here
+        services.AddSingleton<IdentityService>();
         services.AddSingleton<DnsMasterFile>();
         services.AddSingleton<DomainService>();
         services.AddHostedService<DnsBackgroundService>();
@@ -48,7 +50,10 @@ public class Startup
 
         services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
 
-        services.AddControllers(options => {});
+        services.AddControllers(options => 
+        {
+            options.Conventions.Add(new ActionHidingConvention());
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -73,4 +78,17 @@ public class Startup
             endpoints.MapControllers();
         });
     }
+
+    public class ActionHidingConvention : IActionModelConvention
+    {
+        public void Apply(ActionModel action)
+        {
+            // Replace with any logic you want
+            if (!action.Controller.DisplayName.Contains("Blockcore.Dns"))
+            {
+                action.ApiExplorer.IsVisible = false;
+            }
+        }
+    }
+
 }

@@ -37,7 +37,7 @@ namespace Blockcore.Dns
             return true;
         }
 
-        public bool TryAddRecord(DnsRequest dnsRequest)
+        public bool TryAddRecord(DnsData dnsRequest)
         {
             var ipAddress = IPAddress.Parse(dnsRequest.IpAddress);
             var domain = string.IsNullOrEmpty(dnsRequest.Domain) ? null : new Domain(dnsRequest.Domain);
