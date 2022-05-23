@@ -12,7 +12,7 @@ public class Program
     {
         if (args.Contains("--help"))
         {
-            Console.WriteLine($"The app has 3 modes:");
+            Console.WriteLine($"The app has 3 modes: ");
             Console.WriteLine($"--did mode to generate a did key pair");
             Console.WriteLine($"--agent mode to run as client that can register domains/IPs to a dns server (ddns)");
             Console.WriteLine($"otherwise to run as a dns server mode that can serve A/AAAA records and allow agents to register domains and IPs");
