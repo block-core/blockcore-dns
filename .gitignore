@@ -7,7 +7,7 @@
 *.sln.docstates
 
 .vs/
-Blockcore.Indexer.xml
+Blockcore.Dns.xml
 node_modules
 
 # Build results
