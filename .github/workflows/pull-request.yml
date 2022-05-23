@@ -36,4 +36,4 @@ jobs:
       run: dotnet build -c ${{env.BUILD_CONFIGURATION}} -v m ${{env.SOLUTION_PATH}}
       
     - name: Unit Test
-      run: dotnet test -v=normal -c ${{env.BUILD_CONFIGURATION}}
+      run: dotnet test ${{env.SOLUTION_PATH}} -v=normal -c ${{env.BUILD_CONFIGURATION}}
