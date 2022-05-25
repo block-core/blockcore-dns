@@ -14,18 +14,23 @@ Anyone can run the Blockcore DNS software for their own domain, and can allow an
 
 The running instance of Blockcore DNS will have a REST API that allows running instances of the Blockcore software (e.g. Blockcore Indexer, Blockcore Vault) to announce their current public IP address where consumers can access the public APIs being hosted by individual third parties.
 
+## Agent
+
+Agent mode is an instance of Blockcore DNS run by individuals hosting Blockcore software (e.g. Blockcore Indexer, Blockcore Vault), it runs side by side such software and can resolve and announce their current public IP address to Blockcore DNS servers.
+
 ## How it works
 
 - Actor A will buy a domain, e.g. "myservers.com".
 - Actor A runs the Blockcore DNS software, preferably using Docker.
-- The Blockcore DNS will be configured by Actor A and setup with an DID (Decentralized identfier).
+- The Blockcore DNS will be configured by Actor A and setup with an DID (Decentralized Identfier).
 - The Blockcore DNS will automatically generate and configure an TLS certificate for secure endpoint communication. It is not a requirement to use certificates, as all messages will be signed.
-- Actor A configure their DNS instance to either be fully public (will be open for various attacks) or pre-approved list of DIDs.
+- Actor A configure their DNS instance to either be fully public (will be open for various attacks) or pre-approved list of DIDs. (fully public DNS is not supported at this stage)
 
 Next step is for Actor B to run, e.g. Blockcore Indexer or Blockcore Vault.
 
 - Actor B will install and run the Blockcore software.
-- Actor B will be able to configure which domains they want their hosted software to be a member of, e.g. "myservers.com".
+- Actor B will install and run the Blockcore DNS in agent mode.
+- Actor B will be able to configure Blockcore DNS which domains they want their hosted software to be a member of, e.g. "myservers.com".
 
 Final step is consumers (users, etc.) that need to consume blockchain and other data.
 
