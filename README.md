@@ -1,6 +1,6 @@
 # Blockcore DNS
 
-Domain Name System Server that utilizes Decentralized identifiers (DIDs) for updates
+Domain Name System Server that utilizes Decentralized Identifiers (DIDs) for updates
 
 ## Introduction
 
@@ -37,6 +37,7 @@ Agent mode is an instance of Blockcore DNS run by individuals hosting Blockcore 
 
 Next step is for Actor B to run, e.g. Blockcore Indexer or Blockcore Vault.
 
+- Actor B will configure a domain or subdomain (our subdomain convention is coin.service.domain.com i.e btc.indexer.blockcore.net)
 - Actor B will install and run the Blockcore software.
 - Actor B will install and run the Blockcore DNS in agent mode.
 - Actor B will be able to configure Blockcore DNS which domains they want their hosted software to be a member of, e.g. "myservers.com".
@@ -53,4 +54,121 @@ The Blockcore node supports DNS-mode, where it will return IP-addresses of publi
 
 https://github.com/kapetan/dns
 
-We should consider using the same library for Blockcore DNS. It provided DNS logic for client and server logic.
+## Getting Started
+
+Use the command --dns-help to show the available command line options
+
+```
+dotnet run --dns-help
+
+Domain Name System Server that utilizes Decentralized Identifiers(DIDs) for updates.
+See the application applications options bellow.
+
+options:
+
+--did            mode to generate a did key pair
+--agent          mode to run as client that can register domains/IPs to a dns server (ddns)
+[unspecified]    otherwise to run as a dns server mode that can serve A/AAAA records and allow agents to register domains and IPs
+```
+
+### How to create a Decentralized Identifier (DID)
+
+```
+dotnet run --did
+
+Secret key add to config 64693d03c3bf79dd1a47ba475db2ed7cd22656c117f1d9329b5bb2324585e3b2
+Public identity did:is:03842ed7d440c0ab437f48db8bffbffdfca307253a3c38a444f4fb91297db1e45d
+```
+
+The secret and DID will be used later in agent and dns `appsettings.config` files
+
+### How to run an agent
+
+```
+dotnet run --agent
+```
+
+When running in agent mode use the secret generated from the previous step and provide the DID of that secret to any dns server that you want the agent to register it's domain data with.
+
+Here is a config exmpale of an agent configured to register a Bitcoin indexer with two dns servers 
+
+```
+ "DnsAgent": {
+    "Hosts": [
+      {
+        "DnsHost": "dns1-domain.com",
+        "Domain": "btc.indexer.agent-domain.com",
+        "Port": "9910",
+        "Symbol": "BTC",
+        "Service": "Indexer"
+      },
+      {
+        "DnsHost": "dns2-domain.com",
+        "Domain": "btc.indexer.agent-domain.com",
+        "Port": "9910",
+        "Symbol": "BTC",
+        "Service": "Indexer"
+      }
+    ],
+    "IntervalMin": "5",
+    "Secret": "64693d03c3bf79dd1a47ba475db2ed7cd22656c117f1d9329b5bb2324585e3b2"
+  }
+```
+
+The agent instance will periodically dicover the current IP address, and broadcast each configured host to register it's domain with a DnsHost (DNS server)
+The agent will build a a request and sign it using schnorr signatures before sending to the server.
+
+### How to run a DNS server
+
+```
+dotnet run
+```
+
+Here is a config exmpale of an configuration to listen to two DID 
+
+```
+"Dns": {
+    "ListenPort": "53",
+    "IntervalMin": "5",
+    "EndServerIp": "192.168.1.1",
+    "DnsttlMinutes": 20,
+    "Identities": [
+      "did:is:03ba00574cc3821ae3d5f367696692e1b20ea25e70565e6fa6a07e7f74d266aa39",
+      "did:is:03842ed7d440c0ab437f48db8bffbffdfca307253a3c38a444f4fb91297db1e45d"
+    ]
+  },
+```
+
+The DNS server exoses the following endpoints 
+
+```
+POST /api/dns/addEntry   - add a new domain entry
+GET  /api/dns/entries    - get the list of DNS A/AAAA records
+GET  /api/dns/services   - get the list of domains registered
+GET  /api/dns/ipaddress  - return the callers ip address
+```
+
+Registration requests that have a domain and IP address will also register an A/AAAA recored to resolve the domain to that IP address (effectively acting as a Dynamic DNS)
+
+#### Open port 53 linux
+When setting up a DNS server on linux its required to open port 53
+see this guid to open that port or follow the steps bellow
+https://www.linuxuprising.com/2020/07/ubuntu-how-to-free-up-port-53-used-by.html
+
+Open this file
+```
+nano /etc/systemd/resolved.conf
+```
+
+Set this params
+```
+DNS=1.1.1.1
+DNSStubListener=no
+```
+
+Create a link
+```
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+```
+
+Reboot
