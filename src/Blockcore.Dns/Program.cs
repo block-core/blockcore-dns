@@ -10,12 +10,16 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        if (args.Contains("--help"))
+        if (args.Contains("--dns-help"))
         {
-            Console.WriteLine($"The app has 3 modes: ");
-            Console.WriteLine($"--did mode to generate a did key pair");
-            Console.WriteLine($"--agent mode to run as client that can register domains/IPs to a dns server (ddns)");
-            Console.WriteLine($"otherwise to run as a dns server mode that can serve A/AAAA records and allow agents to register domains and IPs");
+            Console.WriteLine($"Domain Name System Server that utilizes Decentralized Identifiers(DIDs) for updates.");
+            Console.WriteLine($"See the application applications options bellow.");
+            Console.WriteLine();
+            Console.WriteLine($"options: ");
+            Console.WriteLine();
+            Console.WriteLine($"--did                 mode to generate a did key pair");
+            Console.WriteLine($"--agent               mode to run as client that can register domains/IPs to a dns server (ddns)");
+            Console.WriteLine($"[unspecified]         otherwise to run as a dns server mode that can serve A/AAAA records and allow agents to register domains and IPs");
             return;
         }
 
