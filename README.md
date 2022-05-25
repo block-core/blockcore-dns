@@ -10,6 +10,15 @@ The Blockcore DNS is a type of Dynamic DNS ([DDNS](https://en.wikipedia.org/wiki
 
 Anyone can run the Blockcore DNS software for their own domain, and can allow anyone or approved-list of hosters to be part of their official DNS.
 
+## DNS Server
+
+The DNS server has several responsibilities
+
+- Resolve DNS A/AAA queries for domains that are registered to it.
+- API to register IP address/domains (DDNS) of Blockcore hosted services.
+- API to get list of IP address/domains of Blockcore hosted services.
+- Periodically check that Blockcore hosted services are online (otherwise delist them).
+
 ## API
 
 The running instance of Blockcore DNS will have a REST API that allows running instances of the Blockcore software (e.g. Blockcore Indexer, Blockcore Vault) to announce their current public IP address where consumers can access the public APIs being hosted by individual third parties.
