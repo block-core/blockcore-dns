@@ -48,21 +48,15 @@ Final step is consumers (users, etc.) that need to consume blockchain and other 
 - Actor C will either choose "Default", from a list of pre-approved domains, or custom domain input for where they want to connect.
 - Actor C software will perform a normal DNS lookup and retrieve the IP of all running instances, and pick one IP to communicate with.
 
-## Existing DNS features
-
-The Blockcore node supports DNS-mode, where it will return IP-addresses of public nodes that are connected to the node. This code is based upon this DNS library:
-
-https://github.com/kapetan/dns
-
 ## Getting Started
 
-Use the command --dns-help to show the available command line options
+Use the command `--dns-help` to show the available command line options
 
 ```
 dotnet run --dns-help
 
 Domain Name System Server that utilizes Decentralized Identifiers(DIDs) for updates.
-See the application applications options bellow.
+See the application options below.
 
 options:
 
@@ -80,7 +74,7 @@ Secret key add to config 64693d03c3bf79dd1a47ba475db2ed7cd22656c117f1d9329b5bb23
 Public identity did:is:03842ed7d440c0ab437f48db8bffbffdfca307253a3c38a444f4fb91297db1e45d
 ```
 
-The secret and DID will be used later in agent and dns `appsettings.config` files
+The secret and DID will be used later in the agent and dns `appsettings.config` files
 
 ### How to run an agent
 
@@ -90,7 +84,7 @@ dotnet run --agent
 
 When running in agent mode use the secret generated from the previous step and provide the DID of that secret to any dns server that you want the agent to register it's domain data with.
 
-Here is a config exmpale of an agent configured to register a Bitcoin indexer with two dns servers 
+Here is a config example of an agent configured to register a Bitcoin indexer with two dns servers 
 
 ```
  "DnsAgent": {
@@ -115,8 +109,8 @@ Here is a config exmpale of an agent configured to register a Bitcoin indexer wi
   }
 ```
 
-The agent instance will periodically dicover the current IP address, and broadcast each configured host to register it's domain with a DnsHost (DNS server)
-The agent will build a a request and sign it using schnorr signatures before sending to the server.
+The agent instance will periodically discover the current IP address, and broadcast each configured host to register it's domain with a DnsHost (DNS server)
+The agent will build a request and sign it using schnorr signatures before sending to the server.
 
 ### How to run a DNS server
 
@@ -172,3 +166,10 @@ ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 ```
 
 Reboot
+
+
+## Eternal dependencies
+
+The DNS server uses the following nuget package to handle DNS queries
+
+https://github.com/kapetan/dns
