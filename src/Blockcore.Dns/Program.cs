@@ -13,7 +13,7 @@ public class Program
         if (args.Contains("--dns-help"))
         {
             Console.WriteLine($"Domain Name System Server that utilizes Decentralized Identifiers(DIDs) for updates.");
-            Console.WriteLine($"See the application applications options bellow.");
+            Console.WriteLine($"See the application options below.");
             Console.WriteLine();
             Console.WriteLine($"options: ");
             Console.WriteLine();
