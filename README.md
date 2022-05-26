@@ -109,6 +109,7 @@ Here is a config example of an agent configured to register a Bitcoin indexer wi
       }
     ],
     "IntervalMin": "5",
+    "DnsttlMinutes": 20,
     "Secret": "64693d03c3bf79dd1a47ba475db2ed7cd22656c117f1d9329b5bb2324585e3b2"
   }
 ```
@@ -126,7 +127,6 @@ Here is a config exmpale of an configuration to listen to two DID
     "ListenPort": "53",
     "IntervalMin": "5",
     "EndServerIp": "192.168.1.1",
-    "DnsttlMinutes": 20,
     "Identities": [
       "did:is:03ba00574cc3821ae3d5f367696692e1b20ea25e70565e6fa6a07e7f74d266aa39",
       "did:is:03842ed7d440c0ab437f48db8bffbffdfca307253a3c38a444f4fb91297db1e45d"
