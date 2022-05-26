@@ -94,21 +94,21 @@ Here is a config example of an agent configured to register a Bitcoin indexer wi
  "DnsAgent": {
     "Hosts": [
       {
-        "DnsHost": "dns1-domain.com",
+        "DnsHost": "http://dns1-domain.com",
         "Domain": "btc.indexer.agent-domain.com",
         "Port": "9910",
         "Symbol": "BTC",
         "Service": "Indexer"
       },
       {
-        "DnsHost": "dns2-domain.com",
+        "DnsHost": "http://dns2-domain.com",
         "Domain": "btc.indexer.agent-domain.com",
         "Port": "9910",
         "Symbol": "BTC",
         "Service": "Indexer"
       }
     ],
-    "IntervalMin": "5",
+    "IntervalMinutes": "5",
     "DnsttlMinutes": 20,
     "Secret": "64693d03c3bf79dd1a47ba475db2ed7cd22656c117f1d9329b5bb2324585e3b2"
   }
@@ -125,7 +125,7 @@ Here is a config exmpale of an configuration to listen to two DID
 ```
 "Dns": {
     "ListenPort": "53",
-    "IntervalMin": "5",
+    "IntervalMinutes": "5",
     "EndServerIp": "192.168.1.1",
     "Identities": [
       "did:is:03ba00574cc3821ae3d5f367696692e1b20ea25e70565e6fa6a07e7f74d266aa39",
