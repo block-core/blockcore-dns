@@ -59,7 +59,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
             {
                 try
                 {
-                    string externalIpString = httpClient.GetStringAsync($"http://{host.DnsHost}/api/dns/ipaddress").Result;
+                    string externalIpString = httpClient.GetStringAsync($"{host.DnsHost}/api/dns/ipaddress").Result;
                     externalIp = IPAddress.Parse(externalIpString.Replace("\\r\\n", "").Replace("\\n", "").Trim());
 
                     if (externalIp.IsIPv4MappedToIPv6)
@@ -94,7 +94,7 @@ public class AgentBackgroundService : IHostedService, IDisposable
 
                     identityService.CreateIdentity(request, agentSettings);
 
-                    var result = httpClient.PostAsJsonAsync($"http://{host.DnsHost}/api/dns/addEntry", request).Result;
+                    var result = httpClient.PostAsJsonAsync($"{host.DnsHost}/api/dns/addEntry", request).Result;
 
                     if (result.IsSuccessStatusCode)
                     {

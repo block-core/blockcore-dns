@@ -68,7 +68,7 @@ public class StatusBackgroundService : IHostedService, IDisposable
             }
             catch (Exception ex)
             {
-                logger.LogError($"Fail to fetc status info from host {serviceEntry.Domain} error= {ex.Message}");
+                logger.LogError($"Fail to fetch status info from host {serviceEntry.Domain} error= {ex.Message}");
 
                 // todo: add failure counter threshold 
                 // in case of failure we still remove the entries
