@@ -133,7 +133,7 @@ Here is a config exmpale of an configuration to listen to two DID
   },
 ```
 
-The DNS server exoses the following endpoints 
+The DNS server exposes the following endpoints 
 
 ```
 POST /api/dns/addEntry   - add a new domain entry
@@ -168,7 +168,7 @@ ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 Reboot
 
 
-## Eternal dependencies
+## External dependencies
 
 The DNS server uses the following nuget package to handle DNS queries
 
