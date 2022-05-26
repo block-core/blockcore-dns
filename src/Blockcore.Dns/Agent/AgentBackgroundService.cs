@@ -96,8 +96,14 @@ public class AgentBackgroundService : IHostedService, IDisposable
 
                     var result = httpClient.PostAsJsonAsync($"http://{host.DnsHost}/api/dns/addEntry", request).Result;
 
-                    logger.LogInformation($"Updated host {host.DnsHost} request {System.Text.Json.JsonSerializer.Serialize(request)}");
-
+                    if (result.IsSuccessStatusCode)
+                    {
+                        logger.LogInformation($"Updated host {host.DnsHost} request {System.Text.Json.JsonSerializer.Serialize(request)}");
+                    }
+                    else
+                    {
+                        logger.LogWarning($"Failed to update host {host.DnsHost}, StatusCode = {result.StatusCode}");
+                    }
                 }
                 catch (Exception ex)
                 {
