@@ -37,7 +37,8 @@ Agent mode is an instance of Blockcore DNS run by individuals hosting Blockcore 
 
 Next step is for Actor B to run, e.g. Blockcore Indexer or Blockcore Vault.
 
-- Actor B will configure a domain or subdomain (our subdomain convention is coin.service.domain.com i.e btc.indexer.blockcore.net)
+- Actor B will buy a domain or use a subdomain (by convention we use `coin.service.domain.com` i.e `btc.indexer.blockcore.net`)
+- Actor B will configure the domain/subdomain to resolve an NS record to the Actor A server "myservers.com". or one of Blockcore-DNS servers (i.e `ns.blockcore.net`)
 - Actor B will install and run the Blockcore software.
 - Actor B will install and run the Blockcore DNS in agent mode.
 - Actor B will be able to configure Blockcore DNS which domains they want their hosted software to be a member of, e.g. "myservers.com".
@@ -84,6 +85,9 @@ dotnet run --agent
 
 When running in agent mode use the secret generated from the previous step and provide the DID of that secret to any dns server that you want the agent to register it's domain data with.
 
+The agent instance will periodically discover the current IP address, and broadcast each configured host to register it's domain with a DnsHost (DNS server)
+The agent will build a request and sign it using schnorr signatures before sending to the server.
+
 Here is a config example of an agent configured to register a Bitcoin indexer with two dns servers 
 
 ```
@@ -108,9 +112,6 @@ Here is a config example of an agent configured to register a Bitcoin indexer wi
     "Secret": "64693d03c3bf79dd1a47ba475db2ed7cd22656c117f1d9329b5bb2324585e3b2"
   }
 ```
-
-The agent instance will periodically discover the current IP address, and broadcast each configured host to register it's domain with a DnsHost (DNS server)
-The agent will build a request and sign it using schnorr signatures before sending to the server.
 
 ### How to run a DNS server
 
