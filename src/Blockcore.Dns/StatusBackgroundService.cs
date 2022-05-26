@@ -28,9 +28,9 @@ public class StatusBackgroundService : IHostedService, IDisposable
 
     public Task StartAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation($"Timed Hosted Service running every {dnsSettings.IntervalMin} min.");
+        logger.LogInformation($"Timed Hosted Service running every {dnsSettings.IntervalMinutes} min.");
 
-        timer = new Timer(DoWork, null, TimeSpan.FromMinutes(dnsSettings.IntervalMin), TimeSpan.FromMinutes(dnsSettings.IntervalMin));
+        timer = new Timer(DoWork, null, TimeSpan.FromMinutes(dnsSettings.IntervalMinutes), TimeSpan.FromMinutes(dnsSettings.IntervalMinutes));
 
         return Task.CompletedTask;
     }

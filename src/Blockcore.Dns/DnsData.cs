@@ -9,11 +9,12 @@ namespace Blockcore.Dns
         public int Port { get; set; }
         public string Symbol { get; set; }
         public string Service { get; set; }
+        public int Ttl { get; set; }
         public long Ticks { get; set; }
 
         public override string ToString()
         {
-            return ObjectStringifier.New(this).Add("Domain", "IpAddress", "Port", "Symbol", "Service").ToString();
+            return ObjectStringifier.New(this).Add("Domain", "IpAddress", "Port", "Symbol", "Service", "Ttl").ToString();
         }
     }
 }

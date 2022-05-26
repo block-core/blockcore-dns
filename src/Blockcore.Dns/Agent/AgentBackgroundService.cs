@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Net;
 
 /// <summary>
-/// A background service that will resolve the agnets public ip address and 
+/// A background service that will resolve the agents public ip address and 
 /// register domain entries with the blockcore-dns server.
 /// </summary>
 public class AgentBackgroundService : IHostedService, IDisposable
@@ -34,9 +34,9 @@ public class AgentBackgroundService : IHostedService, IDisposable
     {
         logger.LogInformation($"Configured identity = {identityService.GetIdentity(agentSettings)}.");
 
-        logger.LogInformation($"Timed Hosted Service running every {agentSettings.IntervalMin} min.");
+        logger.LogInformation($"Timed Hosted Service running every {agentSettings.IntervalMinutes} min.");
 
-        timer = new Timer(DoWork, null, TimeSpan.Zero,TimeSpan.FromMinutes(agentSettings.IntervalMin));
+        timer = new Timer(DoWork, null, TimeSpan.Zero,TimeSpan.FromMinutes(agentSettings.IntervalMinutes));
 
         return Task.CompletedTask;
     }
@@ -87,7 +87,8 @@ public class AgentBackgroundService : IHostedService, IDisposable
                             IpAddress = externalIp.ToString(),
                             Port = host.Port,
                             Service = host.Service,
-                            Symbol = host.Symbol
+                            Symbol = host.Symbol,
+                            Ttl = agentSettings.DnsttlMinutes,
                         }
                     };
 

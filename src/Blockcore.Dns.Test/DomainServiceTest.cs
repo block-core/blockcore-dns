@@ -22,7 +22,8 @@ namespace Blockcore.Dns.Test
                     IpAddress = "1.1.1.1",
                     Port = 111,
                     Symbol = "BTC",
-                    Service = "indexer"
+                    Service = "indexer",
+                    Ttl = 20
                 };
             }
         }
@@ -78,6 +79,25 @@ namespace Blockcore.Dns.Test
             service.DomainServiceEntries[0].IpAddress.Should().BeEquivalentTo(System.Net.IPAddress.Parse(Data1.IpAddress));
         }
 
+        [Fact]
+        public void TryAddSameRecordDifferentTtlSuccesTest()
+        {
+            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+
+            DnsData Data = GenerateDnsData;
+
+            service.TryAddRecord(Data).Should().BeTrue();
+            service.DomainServiceEntries.Should().HaveCount(1);
+            service.DnsServiceEntries.Should().HaveCount(1);
+
+            DnsData Data1 = GenerateDnsData;
+            Data1.Ttl = 10;
+            service.TryAddRecord(Data1).Should().BeTrue();
+            service.DomainServiceEntries.Should().HaveCount(1);
+            service.DnsServiceEntries.Should().HaveCount(1);
+            service.DomainServiceEntries[0].DnsRequest.Ttl.Should().Be(Data1.Ttl);
+        }
 
         [Fact]
         public void TryAddDifferentRecordSuccesTest()

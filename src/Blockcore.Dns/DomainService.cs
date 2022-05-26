@@ -99,7 +99,7 @@ public class DomainService : IDomainService
         else
         {
             // existing entry check if the domain has changed
-            if (domain != null && !domain.Equals(domainServiceEntry.Domain))
+            if (domain != null && (!domain.Equals(domainServiceEntry.Domain) || domainServiceEntry.DnsRequest.Ttl != dnsRequest.Ttl))
             {
                 var oldEntry = domainServiceEntry.DnsRequest;
                 domainServiceEntry.Domain = domain;

@@ -11,7 +11,7 @@ namespace Blockcore.Dns
     {
         private object locker;
 
-        public DnsMasterFile(IOptions<DnsSettings> options) : base(TimeSpan.FromMinutes(options.Value.DnsttlMinutes))
+        public DnsMasterFile(IOptions<DnsSettings> options) : base()
         {
             locker = new object();
         }
@@ -44,7 +44,7 @@ namespace Blockcore.Dns
                 return false;
 
             bool modified = false;
-            var record = new IPAddressResourceRecord(new Domain(dnsRequest.Domain), IPAddress.Parse(dnsRequest.IpAddress));
+            var record = new IPAddressResourceRecord(new Domain(dnsRequest.Domain), IPAddress.Parse(dnsRequest.IpAddress), TimeSpan.FromMinutes(dnsRequest.Ttl));
             var res = Get(record.Name, record.Type);
 
             if (!res.Any())
@@ -64,7 +64,7 @@ namespace Blockcore.Dns
                 {
                     if (entry is IPAddressResourceRecord ipEntry)
                     {
-                        if (ipEntry.IPAddress.Equals(record.IPAddress))
+                        if (ipEntry.IPAddress.Equals(record.IPAddress) && ipEntry.TimeToLive == record.TimeToLive)
                         {
                             continue;
                         }
