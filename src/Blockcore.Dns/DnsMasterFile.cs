@@ -89,7 +89,7 @@ namespace Blockcore.Dns
         {
             foreach (Question question in request.Questions)
             {
-                if((int)question.Type == 257)
+                if ((int)question.Type == 257)
                 {
                     IResponse response = Response.FromRequest(request);
                     response.ResponseCode = ResponseCode.NoError;
