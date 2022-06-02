@@ -16,7 +16,8 @@
         public int IntervalMinutes { get; set; } = 5;
 
         /// <summary>
-        /// What local IP to listen on (this seems to not be needed)
+        /// A DNS server to call if a domain is not found on this DNS server, leave empty to ignore.
+        /// Note: setting an ip address of a none DNS server may result in the blockcore dns timing out on queries.
         /// </summary>
         public string EndServerIp { get; set; }
 

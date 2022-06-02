@@ -7,7 +7,7 @@ using System.Net;
 
 namespace Blockcore.Dns
 {
-    public class DnsMasterFile : MasterFile, IDnsMasterFile
+    public class DnsMasterFile : MasterFile, IDnsMasterFile, IRequestResolver
     {
         private object locker;
 
@@ -83,6 +83,21 @@ namespace Blockcore.Dns
             }
 
             return modified;
+        }
+
+        public new Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            foreach (Question question in request.Questions)
+            {
+                if((int)question.Type == 257)
+                {
+                    IResponse response = Response.FromRequest(request);
+                    response.ResponseCode = ResponseCode.NoError;
+                    return Task.FromResult(response);
+                }
+            }
+
+            return base.Resolve(request, cancellationToken);
         }
 
         public IList<IResourceRecord> Entries { get { return entries.ToList(); } }

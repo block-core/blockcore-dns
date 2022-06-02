@@ -43,7 +43,9 @@ public class DnsBackgroundService : BackgroundService
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        dnsServer = new DnsServer(dnsMasterFile as DnsMasterFile, dnsSettings.EndServerIp);
+        dnsServer = string.IsNullOrEmpty(dnsSettings.EndServerIp)
+            ? new DnsServer(dnsMasterFile as DnsMasterFile)
+            : new DnsServer(dnsMasterFile as DnsMasterFile, dnsSettings.EndServerIp);
 
         dnsServer.Requested += (sender, e) =>
         {
@@ -52,20 +54,31 @@ public class DnsBackgroundService : BackgroundService
 
         dnsServer.Responded += (sender, e) =>
         {
-            logger.LogInformation("{0} => {1}", e.Request, e.Response);
+            logger.LogInformation($"{Environment.NewLine} Dns Request = {e.Request} {Environment.NewLine} Dns Response = {e.Response} {Environment.NewLine}");
         };
 
         // Log errors
         dnsServer.Errored += (sender, e) =>
         {
-            if (e.Exception.Message == "The operation was canceled.")
-                return;
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogError(e.Exception.ToString());
 
-            logger.LogError(e.Exception.Message);
+            }
+            else
+            {
+                logger.LogError(e.Exception.Message);
+            }
         };
 
         // Start the server (by default it listens on port 53)
-        dnsServer.Listening += (sender, e) => logger.LogInformation($"Listening on port {dnsSettings.ListenPort}");
+        dnsServer.Listening += (sender, e) =>
+        {
+            logger.LogInformation($"Listening on port {dnsSettings.ListenPort}");
+
+            if(!string.IsNullOrEmpty(dnsSettings.EndServerIp))
+                logger.LogInformation($"End server ip =  {dnsSettings.EndServerIp}");
+        };
 
         stoppingToken.Register(() =>
         {
