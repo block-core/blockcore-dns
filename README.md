@@ -174,3 +174,9 @@ Reboot
 The DNS server uses the following nuget package to handle DNS queries
 
 https://github.com/kapetan/dns
+
+Docs and a usefull tool to help debug DNS queries (used by letsencrypt)
+
+https://unboundtest.com/
+https://letsencrypt.org/docs/caa/
+
