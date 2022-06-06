@@ -1,5 +1,6 @@
 namespace Blockcore.Dns.Agent;
 using Blockcore.Dns.Api;
+using Blockcore.Dns.Identity;
 using Microsoft.Extensions.Options;
 using System.Net;
 

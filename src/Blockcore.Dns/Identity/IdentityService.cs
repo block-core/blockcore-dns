@@ -1,4 +1,4 @@
-﻿namespace Blockcore.Dns
+﻿namespace Blockcore.Dns.Identity
 {
     using Blockcore.Dns.Agent;
     using Blockcore.Dns.Api;

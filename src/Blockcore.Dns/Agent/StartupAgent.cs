@@ -1,3 +1,5 @@
+using Blockcore.Dns.Identity;
+
 namespace Blockcore.Dns.Agent;
 
 public class StartupAgent

@@ -1,5 +1,6 @@
 namespace Blockcore.Dns;
 
+using Blockcore.Dns.Identity;
 using DNS.Client.RequestResolver;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.OpenApi.Models;

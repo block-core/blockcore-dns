@@ -1,4 +1,4 @@
-using DNS.Server;
+using Blockcore.Dns.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
