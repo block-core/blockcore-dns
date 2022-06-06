@@ -1,5 +1,6 @@
 namespace Blockcore.Dns;
 
+using DNS.Client.RequestResolver;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.OpenApi.Models;
 
@@ -20,8 +21,9 @@ public class StartupDns
 
         // Configure your services here
         services.AddSingleton<IIdentityService, IdentityService>();
-        services.AddSingleton<IDnsMasterFile, DnsMasterFile>();
-        services.AddSingleton<IDomainService, DomainService>();
+        services.AddSingleton<DomainService>()
+            .AddSingleton<IDomainService, DomainService>(provider => provider.GetService<DomainService>())
+            .AddSingleton<IRequestResolver, DomainService>(provider => provider.GetService<DomainService>());
         services.AddHostedService<DnsBackgroundService>();
         services.AddHostedService<StatusBackgroundService>();
 
