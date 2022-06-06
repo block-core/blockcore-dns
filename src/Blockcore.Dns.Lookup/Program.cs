@@ -14,7 +14,6 @@ if (args.Length == 0)
 
 try
 {
-
     var iPEndPoint = new IPEndPoint(IPAddress.Parse((string)args[0]), int.Parse((string)args[1]));
     DnsClient client = new DnsClient(iPEndPoint);
 

@@ -64,7 +64,6 @@ public class DnsBackgroundService : BackgroundService
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.LogError(e.Exception.ToString());
-
             }
             else
             {

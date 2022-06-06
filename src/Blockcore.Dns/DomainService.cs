@@ -40,7 +40,46 @@ public class DomainService : IDomainService, IRequestResolver
 
     public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        foreach (Question question in request.Questions)
+        {
+            // CAA records need to be answered with
+            // NoError in order to work correctly
+
+            if ((int)question.Type == 257)
+            {
+                IResponse caaResponse = Response.FromRequest(request);
+                caaResponse.ResponseCode = ResponseCode.NoError;
+                return Task.FromResult(caaResponse);
+            }
+        }
+
+        var entries = domainServiceEntries;
+
+        IResponse response = Response.FromRequest(request);
+        foreach (Question question in request.Questions)
+        {
+            if (entries.TryGetValue(question.Name, out DomainServiceEntry? domainServiceEntry))
+            {
+                if (domainServiceEntry.FailedPings == 0)
+                {
+                    var records = question.Type == RecordType.ANY ?
+                        domainServiceEntry.Recoreds() :
+                        domainServiceEntry.Recoreds().Where(w => w.Type == question.Type);
+
+                    foreach (var record in records)
+                    {
+                        response.AnswerRecords.Add(record);
+                    }
+                }
+            }
+        }
+
+        if (response.AnswerRecords.Count == 0)
+        {
+            response.ResponseCode = ResponseCode.NameError;
+        }
+
+        return Task.FromResult(response);
     }
 
     public bool TryRemoveRecord(DomainServiceEntry serviceEntry)
@@ -64,7 +103,7 @@ public class DomainService : IDomainService, IRequestResolver
     public bool TryAddRecord(DnsData dnsRequest)
     {
         var ipAddress = IPAddress.Parse(dnsRequest.IpAddress);
-        var domain = new Domain(dnsRequest.Domain);
+        var domain = Domain.FromString(dnsRequest.Domain);
 
         lock (locker)
         {
@@ -107,7 +146,7 @@ public class DomainService : IDomainService, IRequestResolver
     private void PopulateEntry(DomainServiceEntry domainServiceEntry, DnsData dnsRequest)
     {
         var ipAddress = IPAddress.Parse(dnsRequest.IpAddress);
-        var domain = new Domain(dnsRequest.Domain);
+        var domain = Domain.FromString(dnsRequest.Domain);
 
         domainServiceEntry.IpAddress = ipAddress;
         domainServiceEntry.DnsRequest = dnsRequest;
