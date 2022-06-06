@@ -16,7 +16,7 @@ namespace Blockcore.Dns
 
         public override string ToString()
         {
-            return DnsRequest.ToString();
+            return DnsRequest.Stringify().Add("FailedPings", FailedPings).Add("LastSuccessPing", LastSuccessPing).ToString();
         }
 
         public IEnumerable<IResourceRecord> Recoreds()

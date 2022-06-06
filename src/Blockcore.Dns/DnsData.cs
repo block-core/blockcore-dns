@@ -5,7 +5,7 @@ namespace Blockcore.Dns
     public class DnsData
     {
         public string Domain { get; set; }
-        public string CNameDomain { get; set; }
+        public string? CNameDomain { get; set; }
         public string IpAddress { get; set; }
         public int Port { get; set; }
         public int SecurePort { get; set; }
@@ -14,9 +14,14 @@ namespace Blockcore.Dns
         public int Ttl { get; set; }
         public long Ticks { get; set; }
 
+        public ObjectStringifier Stringify()
+        {
+            return ObjectStringifier.New(this).Add("Domain", "IpAddress", "Port", "SecurePort", "Symbol", "Service", "Ttl", "CNameDomain");
+        }
+
         public override string ToString()
         {
-            return ObjectStringifier.New(this).Add("Domain", "IpAddress", "Port", "SecurePort", "Symbol", "Service", "Ttl", "CNameDomain").ToString();
+            return Stringify().ToString();
         }
     }
 }

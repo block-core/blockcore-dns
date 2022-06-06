@@ -31,8 +31,7 @@ namespace Blockcore.Dns.Test
         [Fact]
         public void TryAddRecordSuccesTest()
         {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object);
 
             DnsData Data = GenerateDnsData;
 
@@ -44,8 +43,7 @@ namespace Blockcore.Dns.Test
         [Fact]
         public void TryAddSameRecordSuccesTest()
         {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object);
 
             DnsData Data = GenerateDnsData;
 
@@ -62,8 +60,7 @@ namespace Blockcore.Dns.Test
         [Fact]
         public void TryAddSameRecordDifferentIpSuccesTest()
         {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object);
 
             DnsData Data = GenerateDnsData;
 
@@ -82,8 +79,7 @@ namespace Blockcore.Dns.Test
         [Fact]
         public void TryAddSameRecordDifferentTtlSuccesTest()
         {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object);
 
             DnsData Data = GenerateDnsData;
 
@@ -102,8 +98,7 @@ namespace Blockcore.Dns.Test
         [Fact]
         public void TryAddDifferentRecordSuccesTest()
         {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object);
 
             DnsData Data = GenerateDnsData;
 
@@ -115,20 +110,19 @@ namespace Blockcore.Dns.Test
             Data1.Domain = "domain1.com";
 
             service.TryAddRecord(Data1).Should().BeTrue();
-            service.DomainServiceEntries.Should().HaveCount(1);
-            service.DnsServiceEntries.Should().HaveCount(1);
+            service.DomainServiceEntries.Should().HaveCount(2);
+            service.DnsServiceEntries.Should().HaveCount(2);
 
             // add again
             service.TryAddRecord(Data1).Should().BeFalse();
-            service.DomainServiceEntries.Should().HaveCount(1);
-            service.DnsServiceEntries.Should().HaveCount(1);
+            service.DomainServiceEntries.Should().HaveCount(2);
+            service.DnsServiceEntries.Should().HaveCount(2);
         }
 
         [Fact]
         public void TryAddMultipleDomainsSuccesTest()
         {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
+            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object);
 
             DnsData Data = GenerateDnsData;
 
@@ -151,20 +145,6 @@ namespace Blockcore.Dns.Test
             service.TryAddRecord(Data2).Should().BeTrue();
             service.DomainServiceEntries.Should().HaveCount(3);
             service.DnsServiceEntries.Should().HaveCount(3);
-        }
-
-        [Fact]
-        public void TryAddIpRecordSuccesTest()
-        {
-            DnsMasterFile dnsMasterFile = new DnsMasterFile(Options.Create(new DnsSettings()));
-            DomainService service = new DomainService(new Mock<ILogger<DomainService>>().Object, dnsMasterFile);
-
-            DnsData Data = GenerateDnsData;
-            Data.Domain = null;
-
-            service.TryAddRecord(Data).Should().BeTrue();
-            service.DomainServiceEntries.Should().HaveCount(1);
-            service.DnsServiceEntries.Should().HaveCount(0);
         }
     }
 }

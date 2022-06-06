@@ -45,7 +45,7 @@ public class DomainService : IDomainService, IRequestResolver
             // CAA records need to be answered with
             // NoError in order to work correctly
 
-            if ((int)question.Type == 257)
+            if ((int)question.Type == 257) // 257 - CAA record type
             {
                 IResponse caaResponse = Response.FromRequest(request);
                 caaResponse.ResponseCode = ResponseCode.NoError;
@@ -129,7 +129,7 @@ public class DomainService : IDomainService, IRequestResolver
             }
 
             // this is a new entry
-            var newDnsServiceEntry = new DomainServiceEntry();
+            var newDnsServiceEntry = new DomainServiceEntry { Domain = domain };
             PopulateEntry(newDnsServiceEntry, dnsRequest);
 
             var entries = domainServiceEntries.ToDictionary(d => d.Key, d => d.Value);
