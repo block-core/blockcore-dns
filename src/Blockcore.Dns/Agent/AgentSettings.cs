@@ -27,7 +27,7 @@
     }
 
     /// <summary>
-    /// Meta data that represents local running services and the DNS server we wish to register them with
+    /// Meta data that represents local running services and the DNS server we wish to register them with.
     /// </summary>
     public class AgentHost
     {
