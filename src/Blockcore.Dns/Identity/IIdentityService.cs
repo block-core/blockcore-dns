@@ -1,7 +1,7 @@
 ﻿using Blockcore.Dns.Agent;
 using Blockcore.Dns.Api;
 
-namespace Blockcore.Dns
+namespace Blockcore.Dns.Identity
 {
     public interface IIdentityService
     {

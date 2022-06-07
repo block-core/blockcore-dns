@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 namespace Blockcore.Dns;
 
 using DNS.Client;
+using DNS.Client.RequestResolver;
 using DNS.Server;
 using Microsoft.Extensions.Options;
 using System.Text;
@@ -11,16 +12,16 @@ public class DnsBackgroundService : BackgroundService
 {
     private readonly ILogger<DnsBackgroundService> logger;
     private DnsSettings dnsSettings;
-    private IDnsMasterFile dnsMasterFile;
+    private IRequestResolver requestResolver;
     private DnsServer? dnsServer;
 
     public DnsBackgroundService(
-        ILogger<DnsBackgroundService> logger, 
-        IDnsMasterFile dnsMasterFile, 
+        ILogger<DnsBackgroundService> logger,
+        IRequestResolver requestResolver, 
         IOptions<DnsSettings> options)
     {
         this.logger = logger;
-        this.dnsMasterFile = dnsMasterFile;
+        this.requestResolver = requestResolver;
         dnsSettings = options.Value;
     }
 
@@ -44,8 +45,8 @@ public class DnsBackgroundService : BackgroundService
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         dnsServer = string.IsNullOrEmpty(dnsSettings.EndServerIp)
-            ? new DnsServer(dnsMasterFile as DnsMasterFile)
-            : new DnsServer(dnsMasterFile as DnsMasterFile, dnsSettings.EndServerIp);
+            ? new DnsServer(requestResolver)
+            : new DnsServer(requestResolver, dnsSettings.EndServerIp);
 
         dnsServer.Requested += (sender, e) =>
         {
@@ -63,7 +64,6 @@ public class DnsBackgroundService : BackgroundService
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.LogError(e.Exception.ToString());
-
             }
             else
             {

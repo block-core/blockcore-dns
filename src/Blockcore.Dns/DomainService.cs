@@ -1,46 +1,99 @@
 ﻿namespace Blockcore.Dns;
 
+using DNS.Client.RequestResolver;
 using DNS.Protocol;
 using DNS.Protocol.ResourceRecords;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
-public class DomainService : IDomainService
+public class DomainService : IDomainService, IRequestResolver
 {
     private object locker;
-    private IList<DomainServiceEntry> domainServiceEntries;
+    private IDictionary<Domain, DomainServiceEntry> domainServiceEntries;
     private readonly ILogger<DomainService> logger;
-    private IDnsMasterFile dnsMasterFile;
 
     public IList<DomainServiceEntry> DomainServiceEntries
     {
-        get { return domainServiceEntries.ToList(); }
+        get 
+        {
+            var entries = domainServiceEntries;
+            return entries.Values.ToList(); 
+        }
     }
 
     public IList<IResourceRecord> DnsServiceEntries
     {
-        get { return dnsMasterFile.Entries.ToList(); }
+        get
+        {
+            var entries = domainServiceEntries;
+            return entries.Values.SelectMany(s => s.Recoreds()).ToList();
+        }
     }
 
-    public DomainService(ILogger<DomainService> logger, IDnsMasterFile dnsMasterFile)
+    public DomainService(ILogger<DomainService> logger)
     {
-        this.logger = logger;
-        this.dnsMasterFile = dnsMasterFile;
         locker = new object();
-        domainServiceEntries = new List<DomainServiceEntry>();
+        domainServiceEntries = new Dictionary<Domain, DomainServiceEntry>();
+        this.logger = logger;
+    }
+
+    public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default)
+    {
+        var entries = domainServiceEntries;
+
+        IResponse response = Response.FromRequest(request);
+        foreach (Question question in request.Questions)
+        {
+            // CAA records need to be answered with
+            // NoError in order to work correctly
+
+            if ((int)question.Type == 257) // 257 - CAA record type
+            {
+                IResponse caaResponse = Response.FromRequest(request);
+                caaResponse.ResponseCode = ResponseCode.NoError;
+                return Task.FromResult(caaResponse);
+            }
+
+            if (entries.TryGetValue(question.Name, out DomainServiceEntry? domainServiceEntry))
+            {
+
+                if (domainServiceEntry.FailedPings == 0)
+                {
+                    var records = question.Type == RecordType.ANY ?
+                        domainServiceEntry.Recoreds() :
+                        domainServiceEntry.Recoreds().Where(w => w.Type == question.Type);
+
+                    foreach (var record in records)
+                    {
+                        response.AnswerRecords.Add(record);
+                    }
+                }
+            }
+        }
+
+        if (response.AnswerRecords.Count == 0)
+        {
+            response.ResponseCode = ResponseCode.NameError;
+        }
+
+        return Task.FromResult(response);
     }
 
     public bool TryRemoveRecord(DomainServiceEntry serviceEntry)
     {
         lock (locker)
         {
-            var newServiceEntries = domainServiceEntries.ToList();
-            newServiceEntries.Remove(serviceEntry);
-            domainServiceEntries = newServiceEntries;
-
-            dnsMasterFile.TryRemoveIPAddressResourceRecord(serviceEntry.DnsRequest);
+            if (domainServiceEntries.ContainsKey(serviceEntry.Domain))
+            {
+                var entries = domainServiceEntries.ToDictionary(d => d.Key, d => d.Value);
+                if (entries.Remove(serviceEntry.Domain))
+                {
+                    domainServiceEntries = entries;
+                    logger.LogInformation($"Remove entry = {serviceEntry.DnsRequest}");
+                }
+            }
         }
-
-        logger.LogInformation($"Remove entry = {serviceEntry.DnsRequest}");
 
         return true;
     }
@@ -48,72 +101,59 @@ public class DomainService : IDomainService
     public bool TryAddRecord(DnsData dnsRequest)
     {
         var ipAddress = IPAddress.Parse(dnsRequest.IpAddress);
-        var domain = string.IsNullOrEmpty(dnsRequest.Domain) ? null : new Domain(dnsRequest.Domain);
+        var domain = Domain.FromString(dnsRequest.Domain);
 
-        var domainServiceEntry = domainServiceEntries.Where(d =>
-            d.IpAddress.Equals(ipAddress) &&
-            dnsRequest.Port == d.DnsRequest.Port)
-            .SingleOrDefault();
-
-        if (domainServiceEntry == null)
+        lock (locker)
         {
-            // we try to find if this is a known domain where the ip address has changed
-            if (domain != null)
+            if (domainServiceEntries.TryGetValue(domain, out DomainServiceEntry? domainServiceEntry))
             {
-                var domainDomainServiceEntry = domainServiceEntries.Where(d => d.Domain?.Equals(domain) ?? false).SingleOrDefault();
+                // this is an existing entry only modify
+                // if any of the properties have changed
+                // no need to make changes to the dictionary
 
-                if (domainDomainServiceEntry != null)
+                bool modified = !domainServiceEntry.IpAddress.Equals(ipAddress)
+                    || domainServiceEntry.DnsRequest.CNameDomain != dnsRequest.CNameDomain
+                    || domainServiceEntry.DnsRequest.Ttl != dnsRequest.Ttl
+                    || domainServiceEntry.DnsRequest.Port != dnsRequest.Port;
+
+                if (modified)
                 {
-                    domainDomainServiceEntry.IpAddress = ipAddress;
-                    domainDomainServiceEntry.DnsRequest = dnsRequest;
-
-                    dnsMasterFile.TryAddOrUpdateIPAddressResourceRecord(dnsRequest);
-
+                    PopulateEntry(domainServiceEntry, dnsRequest);
                     logger.LogInformation($"Update entry = {dnsRequest}");
-
                     return true;
                 }
+
+                return false;
             }
 
             // this is a new entry
-            var newDnsServiceEntry = new DomainServiceEntry
-            {
-                DnsRequest = dnsRequest,
-                Domain = domain,
-                IpAddress = ipAddress
-            };
+            var newDnsServiceEntry = new DomainServiceEntry { Domain = domain };
+            PopulateEntry(newDnsServiceEntry, dnsRequest);
 
-            lock (locker)
+            var entries = domainServiceEntries.ToDictionary(d => d.Key, d => d.Value);
+            if (entries.TryAdd(newDnsServiceEntry.Domain, newDnsServiceEntry))
             {
-                var newServiceEntries = domainServiceEntries.ToList();
-                newServiceEntries.Add(newDnsServiceEntry);
-                domainServiceEntries = newServiceEntries;
-
-                dnsMasterFile.TryAddOrUpdateIPAddressResourceRecord(dnsRequest);
+                domainServiceEntries = entries;
+                logger.LogInformation($"Added entry = {dnsRequest}");
             }
-
-            logger.LogInformation($"Added entry = {dnsRequest}");
-
-            return true;
         }
-        else
+
+        return true;
+    }
+
+    private void PopulateEntry(DomainServiceEntry domainServiceEntry, DnsData dnsRequest)
+    {
+        var ipAddress = IPAddress.Parse(dnsRequest.IpAddress);
+        var domain = Domain.FromString(dnsRequest.Domain);
+
+        domainServiceEntry.IpAddress = ipAddress;
+        domainServiceEntry.DnsRequest = dnsRequest;
+        domainServiceEntry.IPAddressResourceRecord = new IPAddressResourceRecord(domain, ipAddress, TimeSpan.FromMinutes(dnsRequest.Ttl));
+
+        if (dnsRequest.CNameDomain != null)
         {
-            // existing entry check if the domain has changed
-            if (domain != null && (!domain.Equals(domainServiceEntry.Domain) || domainServiceEntry.DnsRequest.Ttl != dnsRequest.Ttl))
-            {
-                var oldEntry = domainServiceEntry.DnsRequest;
-                domainServiceEntry.Domain = domain;
-                domainServiceEntry.DnsRequest = dnsRequest;
-
-                dnsMasterFile.TryRemoveIPAddressResourceRecord(oldEntry);
-                dnsMasterFile.TryAddOrUpdateIPAddressResourceRecord(dnsRequest);
-
-                logger.LogInformation($"Update entry = {dnsRequest}");
-
-                return true;
-            }
+            var cnameDomain = new Domain(dnsRequest.CNameDomain);
+            domainServiceEntry.CNameResourceRecord = new CanonicalNameResourceRecord(domain, cnameDomain, TimeSpan.FromMinutes(dnsRequest.Ttl));
         }
-
-        return false;
     }
 }

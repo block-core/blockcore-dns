@@ -51,18 +51,23 @@ public class StatusBackgroundService : IHostedService, IDisposable
             {
                 if (serviceEntry.DnsRequest.Service.ToLower() == "indexer")
                 {
-                    string? url = serviceEntry.Domain != null ? $"https://{serviceEntry.Domain}/api/stats" 
-                                : serviceEntry.IpAddress != null ? $"http://{serviceEntry.IpAddress}:{serviceEntry.DnsRequest.Port}/api/stats" 
-                                : null;
-
-                    if (url == null)
-                        continue;
-
+                    string url = $"https://{serviceEntry.Domain}/api/stats";
+                    
                     var responseMessage = httpClient.GetAsync(url).Result;
 
-                    if (!responseMessage.IsSuccessStatusCode)
+                    if (responseMessage.IsSuccessStatusCode)
                     {
-                        domainService.TryRemoveRecord(serviceEntry);
+                        serviceEntry.FailedPings = 0;
+                        serviceEntry.LastSuccessPing = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        serviceEntry.FailedPings++;
+
+                        if (serviceEntry.FailedPings > 10)
+                        {
+                            domainService.TryRemoveRecord(serviceEntry);
+                        }
                     }
                 }
             }
@@ -70,9 +75,11 @@ public class StatusBackgroundService : IHostedService, IDisposable
             {
                 logger.LogError($"Fail to fetch status info from host {serviceEntry.Domain} error= {ex.Message}");
 
-                // todo: add failure counter threshold 
-                // in case of failure we still remove the entries
-                domainService.TryRemoveRecord(serviceEntry);
+                serviceEntry.FailedPings++;
+                if (serviceEntry.FailedPings > 10)
+                {
+                    domainService.TryRemoveRecord(serviceEntry);
+                }
             }
         }
     }
