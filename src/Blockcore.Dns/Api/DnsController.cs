@@ -54,6 +54,17 @@ namespace Blockcore.Dns.Api
         [HttpGet("ipaddress")]
         public IActionResult IpAddress()
         {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                System.Text.StringBuilder builder = new System.Text.StringBuilder();
+                foreach (var req in Request.Headers.ToList())
+                {
+                    builder.AppendLine($"{req.Key}, {req.Value}");
+                }
+
+                logger.LogDebug(builder.ToString());
+            }
+
             return new OkObjectResult(Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? String.Empty);
         }
     }

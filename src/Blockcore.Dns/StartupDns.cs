@@ -58,6 +58,7 @@ public class StartupDns
         services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardLimit = null;
             options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });
@@ -65,6 +66,8 @@ public class StartupDns
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        app.UseForwardedHeaders();
+
         app.UseExceptionHandler("/error");
         app.UseCors("IndexerPolicy");
         app.UseResponseCompression();
@@ -84,7 +87,7 @@ public class StartupDns
         {
             endpoints.MapControllers();
         });
-        app.UseForwardedHeaders();
+
     }
 
     public class ActionHidingConvention : IActionModelConvention
