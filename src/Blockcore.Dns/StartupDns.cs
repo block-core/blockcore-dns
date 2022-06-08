@@ -2,6 +2,7 @@ namespace Blockcore.Dns;
 
 using Blockcore.Dns.Identity;
 using DNS.Client.RequestResolver;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.OpenApi.Models;
 
@@ -53,6 +54,13 @@ public class StartupDns
         {
             options.Conventions.Add(new ActionHidingConvention());
         });
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -76,6 +84,7 @@ public class StartupDns
         {
             endpoints.MapControllers();
         });
+        app.UseForwardedHeaders();
     }
 
     public class ActionHidingConvention : IActionModelConvention
