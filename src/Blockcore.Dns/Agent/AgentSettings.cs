@@ -42,9 +42,19 @@
         public string Domain { get; set; }
 
         /// <summary>
-        /// The local port the service is running under (to allow access via ip/port not just domain.
+        /// A canonical domain to redirect callers in case the service is off line.
+        /// </summary>
+        public string CNameDomain { get; set; }
+
+        /// <summary>
+        /// The local port the service is running under (to allow access via ip/port not just domain).
         /// </summary>
         public int Port { get; set; }
+
+        /// <summary>
+        /// The local secure (ssl) port the service is running under (to allow access via ip/port not just domain).
+        /// </summary>
+        public int SecurePort { get; set; }
 
         /// <summary>
         /// The coin symbol this service represents.

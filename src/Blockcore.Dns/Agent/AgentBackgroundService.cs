@@ -87,6 +87,8 @@ public class AgentBackgroundService : IHostedService, IDisposable
                             Domain = host.Domain,
                             IpAddress = externalIp.ToString(),
                             Port = host.Port,
+                            SecurePort = host.SecurePort,
+                            CNameDomain = host.CNameDomain,
                             Service = host.Service,
                             Symbol = host.Symbol,
                             Ttl = agentSettings.DnsttlMinutes,
