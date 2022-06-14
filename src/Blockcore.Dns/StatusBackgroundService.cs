@@ -51,7 +51,7 @@ public class StatusBackgroundService : IHostedService, IDisposable
             {
                 if (serviceEntry.DnsRequest.Service.ToLower() == "indexer")
                 {
-                    string url = $"https://{serviceEntry.Domain}/api/stats";
+                    string url = $"https://{serviceEntry.Domain}/api/stats/heartbeat";
                     
                     var responseMessage = httpClient.GetAsync(url).Result;
 
