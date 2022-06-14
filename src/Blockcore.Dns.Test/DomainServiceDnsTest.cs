@@ -100,8 +100,11 @@ namespace Blockcore.Dns.Test
 
             Response response = service.Resolve(request).Result as Response;
 
-            response.AnswerRecords.Should().HaveCount(0);
-            response.ResponseCode.Should().Be(ResponseCode.NameError);
+            response.ResponseCode.Should().Be(ResponseCode.NoError);
+            response.AnswerRecords.Should().HaveCount(1);
+            response.AnswerRecords[0].Name.Should().Be(Domain.FromString(Data.Domain));
+            response.AnswerRecords[0].Should().BeOfType<IPAddressResourceRecord>();
+            response.AnswerRecords[0].As<IPAddressResourceRecord>().IPAddress.Should().Be(IPAddress.Parse(Data.IpAddress));
         }
 
         [Fact]

@@ -58,16 +58,13 @@ public class DomainService : IDomainService, IRequestResolver
             if (entries.TryGetValue(question.Name, out DomainServiceEntry? domainServiceEntry))
             {
 
-                if (domainServiceEntry.FailedPings == 0)
-                {
-                    var records = question.Type == RecordType.ANY ?
-                        domainServiceEntry.Recoreds() :
-                        domainServiceEntry.Recoreds().Where(w => w.Type == question.Type);
+                var records = question.Type == RecordType.ANY ?
+                    domainServiceEntry.Recoreds() :
+                    domainServiceEntry.Recoreds().Where(w => w.Type == question.Type);
 
-                    foreach (var record in records)
-                    {
-                        response.AnswerRecords.Add(record);
-                    }
+                foreach (var record in records)
+                {
+                    response.AnswerRecords.Add(record);
                 }
             }
         }
