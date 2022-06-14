@@ -24,6 +24,13 @@
         /// Domain data representing services that we want the DNS agent to register with the DNS server.
         /// </summary>
         public AgentHost[] Hosts { get; set; }
+
+        /// <summary>
+        /// An alternative url the agent can use to discover its own ip address.
+        /// This can be used in scenarios where the indexer and dns are hosted inside the same network.
+        /// If blanks or missing the agent will default to use the dns ip discovery endpoint.
+        /// </summary>
+        public string IpDiscoveryUrl { get; set; }
     }
 
     /// <summary>
