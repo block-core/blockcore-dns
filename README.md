@@ -15,13 +15,13 @@ Anyone can run the Blockcore DNS software for their own domain, and can allow an
 The DNS server has several responsibilities
 
 - Resolve DNS A/AAA queries for domains that are registered to it.
-- API to register IP address/domains (DDNS) of Blockcore hosted services.
-- API to get list of IP address/domains of Blockcore hosted services.
-- Periodically check that Blockcore hosted services are online (otherwise delist them).
+- Enable Blockcore hosted services (like the indexer) to register IP and domains (effectively becoming a Dynamic DNS).
+- Allow to query IP address/domains of Blockcore hosted services.
+- Periodically check that Blockcore hosted services are online (otherwise flag/delist them).
 
 ## API
 
-The running instance of Blockcore DNS will have a REST API that allows running instances of the Blockcore software (e.g. Blockcore Indexer, Blockcore Vault) to announce their current public IP address where consumers can access the public APIs being hosted by individual third parties.
+The running instance of Blockcore DNS will have a REST API that allows the running instances of Blockcore software (e.g. Blockcore Indexer, Blockcore Vault) to announce their current public IP address where consumers can access the public APIs being hosted by individual third parties.
 
 ## Agent
 
