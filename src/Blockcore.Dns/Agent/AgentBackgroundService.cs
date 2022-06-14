@@ -60,7 +60,11 @@ public class AgentBackgroundService : IHostedService, IDisposable
             {
                 try
                 {
-                    string externalIpString = httpClient.GetStringAsync($"{host.DnsHost}/api/dns/ipaddress").Result;
+                    var url = string.IsNullOrEmpty(agentSettings.IpDiscoveryUrl)
+                        ? $"{host.DnsHost}/api/dns/ipaddress"
+                        : agentSettings.IpDiscoveryUrl;
+
+                    string externalIpString = httpClient.GetStringAsync(url).Result;
                     externalIp = IPAddress.Parse(externalIpString.Replace("\\r\\n", "").Replace("\\n", "").Trim());
 
                     if (externalIp.IsIPv4MappedToIPv6)
