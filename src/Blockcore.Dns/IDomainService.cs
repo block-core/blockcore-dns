@@ -10,5 +10,7 @@ namespace Blockcore.Dns
 
         bool TryAddRecord(DnsData dnsRequest);
         bool TryRemoveRecord(DomainServiceEntry serviceEntry);
+
+        IList<DnsResult> GetDomainData(string? symbol, string? service);
     }
 }

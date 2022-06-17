@@ -51,6 +51,12 @@ namespace Blockcore.Dns.Api
             return new OkObjectResult(domainService.DomainServiceEntries.Select(s => s.ToString()));
         }
 
+        [HttpGet("services/{symbol}/{service}")]
+        public IActionResult ServiceEntries(string? symbol, string? service)
+        {
+            return new OkObjectResult(domainService.GetDomainData(symbol,service));
+        }
+
         [HttpGet("ipaddress")]
         public IActionResult IpAddress()
         {
