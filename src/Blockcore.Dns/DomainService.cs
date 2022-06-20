@@ -65,12 +65,10 @@ public class DomainService : IDomainService, IRequestResolver
         return items.Select(s => new DnsResult
         {
             Domain = s.DnsRequest.Domain,
-            IpAddress = s.DnsRequest.IpAddress,
-            Port = s.DnsRequest.Port,
-            SecurePort = s.DnsRequest.SecurePort,
             Service = s.DnsRequest.Service,
             Symbol = s.DnsRequest.Symbol,
             Ttl = s.DnsRequest.Ttl,
+            Online = s.FailedPings == 0
         }).ToList();
     }
 
