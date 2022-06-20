@@ -45,10 +45,34 @@ namespace Blockcore.Dns.Api
             return new OkObjectResult(domainService.DnsServiceEntries.Select(s => s.ToString()));
         }
 
+        [HttpGet("domains")]
+        public IActionResult ServiceEntriesAll()
+        {
+            return new OkObjectResult(domainService.DomainServiceEntries.Select(s => s.ToString()));
+        }
+
         [HttpGet("services")]
         public IActionResult ServiceEntries()
         {
-            return new OkObjectResult(domainService.DomainServiceEntries.Select(s => s.ToString()));
+            return new OkObjectResult(domainService.GetDomainData(null, null));
+        }
+
+        [HttpGet("services/symbol/{symbol}")]
+        public IActionResult ServiceEntriesSymbols(string symbol)
+        {
+            return new OkObjectResult(domainService.GetDomainData(symbol, null));
+        }
+
+        [HttpGet("services/service/{service}")]
+        public IActionResult ServiceEntriesService(string service)
+        {
+            return new OkObjectResult(domainService.GetDomainData(null, service));
+        }
+
+        [HttpGet("services/symbol/{symbol?}/service/{service?}")]
+        public IActionResult ServiceEntries(string symbol, string service)
+        {
+            return new OkObjectResult(domainService.GetDomainData(symbol, service));
         }
 
         [HttpGet("ipaddress")]

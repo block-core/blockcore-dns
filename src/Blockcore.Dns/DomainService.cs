@@ -38,6 +38,40 @@ public class DomainService : IDomainService, IRequestResolver
         this.logger = logger;
     }
 
+    public IList<DnsResult> GetDomainData(string? symbol, string? service)
+    {
+        var entries = domainServiceEntries;
+        var values = entries.Values.AsEnumerable();
+
+        IEnumerable<DomainServiceEntry> items = Enumerable.Empty<DomainServiceEntry>();
+
+        if (!string.IsNullOrEmpty(symbol) && !string.IsNullOrEmpty(service))
+        {
+            items = values.Where(entry => entry.DnsRequest.Symbol == symbol && entry.DnsRequest.Service == service);
+        }
+        else if (!string.IsNullOrEmpty(symbol))
+        {
+            items = values.Where(entry => entry.DnsRequest.Symbol == symbol);
+        }
+        else if (!string.IsNullOrEmpty(service))
+        {
+            items = values.Where(entry => entry.DnsRequest.Service == service);
+        }
+        else
+        {
+            items = values;
+        }
+
+        return items.Select(s => new DnsResult
+        {
+            Domain = s.DnsRequest.Domain,
+            Service = s.DnsRequest.Service,
+            Symbol = s.DnsRequest.Symbol,
+            Ttl = s.DnsRequest.Ttl,
+            Online = s.FailedPings == 0
+        }).ToList();
+    }
+
     public Task<IResponse> Resolve(IRequest request, CancellationToken cancellationToken = default)
     {
         var entries = domainServiceEntries;
