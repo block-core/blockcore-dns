@@ -50,6 +50,13 @@ public class StartupDns
 
         services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
 
+        services.AddCors(o => o.AddPolicy("DnsPolicy", builder =>
+        {
+            builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+        }));
+
         services.AddControllers(options => 
         {
             options.Conventions.Add(new ActionHidingConvention());
@@ -69,7 +76,7 @@ public class StartupDns
         app.UseForwardedHeaders();
 
         app.UseExceptionHandler("/error");
-        app.UseCors("IndexerPolicy");
+        app.UseCors("DnsPolicy");
         app.UseResponseCompression();
         app.UseDefaultFiles();
         app.UseStaticFiles();
